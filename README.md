@@ -69,13 +69,7 @@ $ git checkout -b add-my-context # Create new branch
 ```
 
 2. Write your code...
-3. Code quality and formatting. Run [Prettier](https://prettier.io/) to automatically format the code:
-
-```bash
-$ yarn format
-```
-
-4. Push the code to remote repo
+3. Push the code to remote repo
 
 ```bash
 $ git add .
