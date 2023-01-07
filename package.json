@@ -9,7 +9,7 @@
     "deploy": "yarn compile && hardhat deploy",
     "test": "hardhat test",
     "test:coverage": "hardhat coverage",
-    "typechain": "hardhat typechain",
+    "execute": "node -r ts-node/register -r tsconfig-paths/register hardhatRunWithArgs.ts",
     "lint": "solhint 'contracts/**/*.sol'"
   },
   "devDependencies": {
@@ -27,9 +27,7 @@
     "hardhat": "^2.8.4",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "solhint": "^3.3.6",
-    "solhint-plugin-prettier": "^0.0.5",
-    "solidity-coverage": "^0.7.21",
-    "typechain": "^8.0.0"
+    "solhint-plugin-prettier": "^0.0.5"
   },
   "dependencies": {},
   "config": {
@@ -41,8 +39,7 @@
       "tests": "./test",
       "cache": "./cache",
       "build": {
-        "contracts": "./build/contracts",
-        "typechain": "./build/typechain"
+        "contracts": "./build/contracts"
       }
     }
   }
