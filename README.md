@@ -8,6 +8,8 @@
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 
+
+
 ## Requirements
 
 ### ConsumeMsg Contract
@@ -26,3 +28,57 @@
 1. We could use the `tokenURI()` to find the information of User's solved problems.
 
 > `tokenID` will not be the number of problem, it is the number which means the sequence of being minted.
+
+## 🛠 Start Your Journey
+
+### Start the App
+
+1. Clone the repository:
+
+```bash
+$ git clone https://github.com/SWF-Lab/DappChef-Core-Contract.git
+```
+
+2. Install the dependencies:
+
+```bash
+$ cd DappChef-Core-Contract && yarn
+```
+
+3. Compile the Contracts
+
+```bash
+$ yarn compile
+```
+
+4. Run the tests
+```
+$ yarn test
+```
+
+> Make sure the `.env` arguments are same as your image.
+
+### Start the Development
+
+1. Create new branch, reference with [SWF-Lab/github_practice](https://github.com/SWF-Lab/github_practice):
+
+```bash
+$ git checkout main # Change to the main branch
+$ git pull # Make sure the local code is same with the remote
+$ git checkout -b add-my-context # Create new branch
+```
+
+2. Write your code...
+3. Code quality and formatting. Run [Prettier](https://prettier.io/) to automatically format the code:
+
+```bash
+$ yarn format
+```
+
+4. Push the code to remote repo
+
+```bash
+$ git add .
+$ git commit -m "add a new funcationality"
+$ git push
+```

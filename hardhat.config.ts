@@ -1,44 +1,57 @@
+import "@nomiclabs/hardhat-waffle"
 import "@nomiclabs/hardhat-ethers"
-import "@nomicfoundation/hardhat-chai-matchers"
-import { config as dotenvConfig } from "dotenv"
-import { HardhatUserConfig } from "hardhat/config"
-import { NetworksUserConfig } from "hardhat/types"
-import { resolve } from "path"
-import { config } from "./package.json"
-import "./tasks/deploy"
+import "tsconfig-paths/register"
 
-dotenvConfig({ path: resolve(__dirname, "../../.env") })
+import dotenv from "dotenv"
+dotenv.config()
 
-function getNetworks(): NetworksUserConfig {
-  if (process.env.ETHEREUM_URL && process.env.ETHEREUM_PRIVATE_KEY) {
-    const accounts = [`0x${process.env.ETHEREUM_PRIVATE_KEY}`]
+import chai from "chai"
+import chaiAsPromised from "chai-as-promised"
+chai.use(chaiAsPromised)
 
-    return {
-      goerli: {
-        url: process.env.ETHEREUM_URL,
-        chainId: 5,
-        accounts
-      }
-    }
-  }
-
-  return {}
+const accounts = {
+  mnemonic: process.env.MNEMONIC || "test test test test test test test test test test test junk",
 }
+const provuderURL = process.env.ETHEREUM_URL || ""
 
-const hardhatConfig: HardhatUserConfig = {
-  solidity: config.solidity,
-  paths: {
-    sources: config.paths.contracts,
-    tests: config.paths.tests,
-    cache: config.paths.cache,
-    artifacts: config.paths.build.contracts
-  },
+module.exports = {
   networks: {
-    hardhat: {
-      chainId: 1337
+    localhost: {
+      url: "http://localhost:8545",
+      accounts,
     },
-    ...getNetworks()
-  }
+    hardhat: {
+      // chainId: 1,
+      // accounts,
+      // forking: {
+      //     url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_TOKEN}`,
+      //     blockNumber: 12650600,
+      // },
+    },
+    mainnet: {
+      chainId: 1,
+      url: provuderURL,
+      accounts,
+    },
+    goerli: {
+      chainId: 5,
+      url: provuderURL,
+      accounts,
+    },
+  },
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.17",
+        settings: {
+          optimizer: {
+            enabled: true,
+          },
+        },
+      },
+    ],
+  },
+  mocha: {
+    timeout: 4000,
+  },
 }
-
-export default hardhatConfig
