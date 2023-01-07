@@ -4,7 +4,7 @@
     </h1>
 </p>
 
-| The repository is divided into two components: [Reward Contract](./) and [ConsumeMsg Contract](./). The contracts allows users to mint their reward NFT after solving the problems, and contract will validate the signed msg to check it is approved by our server or not. |
+| The repository is divided into two components: [Reward Contract](./contracts/Reward.sol) and [ConsumeMsg Contract](./contracts/ConsumeMsg.sol). The contracts allows users to mint their reward NFT after solving the problems, and contract will validate the signed msg to check it is approved by our server or not. |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 
@@ -21,5 +21,7 @@
 1. Inherite the `ConsumeMsg Contract`
 1. NFT Contract
 1. When user want to mint NFT, we should use the `VerifySignature()` in the `ConsumeMsg Contract` to check whether he/she is approved by our server or not.
-1. We colud use the `balanceOf()` to check the Users' Answer Status. (`tokenID`: Number of Problem).
+1. We colud use the `balanceOf()` and `parseMetadata` to check the Users' Answer Status.
 1. We could use the `tokenURI()` to find the information of User's solved problems.
+
+> `tokenID` will not be the number of problem, it is the number which means the sequence of being minted.
