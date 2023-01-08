@@ -1,14 +1,11 @@
 <p align="center">
     <h1 align="center">
-        DappChef Contract
+        🍩 DappChef Contract
     </h1>
 </p>
 
 | The repository is divided into two components: [**Reward Contract**](./contracts/Reward.sol) and [**Deployer Contract**](./contracts/Deployer.sol). <br /> The **Reward Contract** allows users to mint their reward NFT after solving the problems, and contract will validate the signed msg to check whether it is approved by our server or not. <br />  The **Deployer Contract** will be used by answerers to deploy their answer contract. We can analysis the Deplyoer Contract with **Dune Analytics** to get the traffic status.|
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-
-
-
 
 ## Requirements
 
