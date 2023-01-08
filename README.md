@@ -56,7 +56,10 @@ $ yarn compile
 $ yarn test
 ```
 
-> Make sure the `.env` arguments are same as your image.
+5. Make sure the `.env` arguments are same as your image.
+```
+$ cp .env.example .env
+```
 
 ### Start the Development
 
