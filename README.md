@@ -4,7 +4,7 @@
     </h1>
 </p>
 
-| The repository is divided into two components: [Reward Contract](./contracts/Reward.sol) and [ConsumeMsg Contract](./contracts/ConsumeMsg.sol). The contracts allows users to mint their reward NFT after solving the problems, and contract will validate the signed msg to check it is approved by our server or not. |
+| The repository is divided into two components: [**Reward Contract**](./contracts/Reward.sol) and [**Deployer Contract**](./contracts/Deployer.sol). The **Reward Contract** allows users to mint their reward NFT after solving the problems, and contract will validate the signed msg to check it is approved by our server or not. On the other side, The **Deployer Contract** will be used by answerers to deploy their answer contract. We can use analysis the Deplyoer Contract with **Dune Analytics** to get the traffic status.|
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 

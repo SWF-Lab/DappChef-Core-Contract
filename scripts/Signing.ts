@@ -11,7 +11,7 @@ async function main() {
     const problemSolverAddr = '0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba'
     const problemNumber = '997'
     const problemSolvedTimestamp = 1673070083
-    const approverKey = '0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec'
+    const approverKeyAddr = process.env.CHEF_KEY_ARRR
 
     console.log(
         `Signer Key Address: ${ethers.utils.computeAddress(wallet.privateKey)}`,
@@ -19,12 +19,12 @@ async function main() {
     console.log(`    - Problem Solver Address  : ${problemSolverAddr}`)
     console.log(`    - Problem Number is       : ${problemNumber}`)
     console.log(`    - Problem Solved Timestamp: ${problemSolvedTimestamp}`)
-    console.log(`    - Signature Approver Key  : ${approverKey}`)
+    console.log(`    - Signature Approver Key  : ${approverKeyAddr}`)
 
     // Sign the Msg
     const encode = ethers.utils.solidityPack(
         ["address", "uint256", "uint256", "address"],
-        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKey]
+        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr]
     )
     const msgHash = ethers.utils.keccak256(encode)
     console.log(`\nSigning Hash: ${msgHash}`)
@@ -32,7 +32,7 @@ async function main() {
     console.log(`Signature: ${signature}`)
 
     // Check the Signature is Valid
-    const valid = ethers.utils.recoverAddress(msgHash, signature) == approverKey;
+    const valid = ethers.utils.recoverAddress(msgHash, signature) == approverKeyAddr;
     console.log(`\nCheck the Signature is Valid...${valid ? "Approved!" : "Invalid!"}`)
 }
 

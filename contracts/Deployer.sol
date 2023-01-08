@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-contract Proxy {
+contract Deployer {
     event Deploy(address);
 
     receive() external payable {}
