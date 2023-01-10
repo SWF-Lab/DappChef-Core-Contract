@@ -29,7 +29,7 @@ async function main() {
 
     const messageHash = ethers.utils.solidityKeccak256(["address", "uint256", "uint256", "address"],
         [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr])
-    const messageHashBinary = ethers.utils.arrayify(messageHash)
+    const messageHashBinary = "\x19Ethereum Signed Message:\n" + ethers.utils.arrayify(messageHash).length + ethers.utils.arrayify(messageHash)
     const signature = await wallet.signMessage(messageHashBinary)
     const verified = ethers.utils.verifyMessage(messageHashBinary, signature)
 

@@ -4,7 +4,7 @@
 
 ## Usage
 
-1. `$ yarn execute scripts/Signing.ts --network <L1_network_name>`
+1. `$ yarn execute scripts/Signing.ts
 1. Check the log information is correct.
 
 ```bash
