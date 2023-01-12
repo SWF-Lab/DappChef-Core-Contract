@@ -10,7 +10,7 @@ async function main() {
     const problemSolverAddr = '0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba'
     const problemNumber = '997'
     const problemSolvedTimestamp = 1673070083
-    const approverKeyAddr = process.env.DEV_KEY_2_ARRR as string
+    const approverKeyAddr = process.env.CHEF_KEY_ARRR as string
 
     console.log(
         `Signer Key Address: ${wallet.address}`,
@@ -29,17 +29,19 @@ async function main() {
 
     const messageHash = ethers.utils.solidityKeccak256(["address", "uint256", "uint256", "address"],
         [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr])
-    const messageHashBinary = "\x19Ethereum Signed Message:\n" + ethers.utils.arrayify(messageHash).length + ethers.utils.arrayify(messageHash)
-    const signature = await wallet.signMessage(messageHashBinary)
-    const verified = ethers.utils.verifyMessage(messageHashBinary, signature)
+    const signingHash = ethers.utils.solidityKeccak256(["string", "bytes32"], ["\x19Ethereum Signed Message:\n32", messageHash])
+    const signature = await wallet.signMessage(signingHash)
+    const verified = ethers.utils.verifyMessage(signingHash, signature)
 
-
-    console.log(`\nSigning Hash: ${msgHash}`)
+    console.log(`\ngetMessageHash: ${msgHash}`)
+    console.log(`getEthSignedMessageHash: ${signingHash}`)
     console.log(`Signature: ${signature}`)
 
     // Check the Signature is Valid
+    // console.log(verified.toLowerCase())
+    // console.log(approverKeyAddr.toLowerCase())
 
-    const valid = verified == approverKeyAddr;
+    const valid = verified.toLowerCase() == approverKeyAddr.toLowerCase();
     console.log(`\nCheck the Signature is...${valid ? "Approved!" : "Invalid!"}`)
 }
 
