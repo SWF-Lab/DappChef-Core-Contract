@@ -56,7 +56,20 @@ interface IERC721Receiver {
     ) external returns (bytes4);
 }
 
-contract ERC721 is IERC721 {
+interface IERC721Metadata is IERC721 {
+
+    function name() external view returns (string memory);
+
+    function symbol() external view returns (string memory);
+
+    function tokenURI(uint256 tokenId) external view returns (string memory);
+}
+
+contract ERC721 is IERC721Metadata {
+
+    string private _name;
+    string private _symbol;
+
     event Transfer(
         address indexed from,
         address indexed to,
@@ -85,6 +98,14 @@ contract ERC721 is IERC721 {
     // Mapping from owner to operator approvals
     mapping(address => mapping(address => bool)) public isApprovedForAll;
 
+    function name() external view returns (string memory) {
+        return _name;
+    }
+
+    function symbol() external view returns (string memory) {
+        return _symbol;
+    }
+    
     function supportsInterface(bytes4 interfaceId)
         external
         pure
@@ -197,6 +218,13 @@ contract ERC721 is IERC721 {
         );
     }
 
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        // _requireMinted(tokenId);
+
+        string memory baseURI = "x";
+        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, toString(tokenId))) : "";
+    }
+
     function _mint(address to, uint256 id) internal {
         require(to != address(0), "mint to zero address");
         require(_ownerOf[id] == address(0), "already minted");
@@ -207,7 +235,7 @@ contract ERC721 is IERC721 {
         emit Transfer(address(0), to, id);
     }
 
-    function _burn(uint256 id) internal {
+    function _burn(uint256 id) internal virtual {
         address owner = _ownerOf[id];
         require(owner != address(0), "not minted");
 
@@ -218,9 +246,103 @@ contract ERC721 is IERC721 {
 
         emit Transfer(owner, address(0), id);
     }
+
+    // Implementation of toString() from OZ
+    bytes16 private constant _SYMBOLS = "0123456789abcdef";
+    function log10(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
+                result += 64;
+            }
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
+                result += 32;
+            }
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
+                result += 16;
+            }
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
+                result += 8;
+            }
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
+                result += 4;
+            }
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
+                result += 2;
+            }
+            if (value >= 10 ** 1) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    function toString(uint256 value) internal pure returns (string memory) {
+        unchecked {
+            uint256 length = log10(value) + 1;
+            string memory buffer = new string(length);
+            uint256 ptr;
+            /// @solidity memory-safe-assembly
+            assembly {
+                ptr := add(buffer, add(32, length))
+            }
+            while (true) {
+                ptr--;
+                /// @solidity memory-safe-assembly
+                assembly {
+                    mstore8(ptr, byte(mod(value, 10), _SYMBOLS))
+                }
+                value /= 10;
+                if (value == 0) break;
+            }
+            return buffer;
+        }
+    }
 }
 
-contract RewardContract is ERC721, ConsumeMsgContract {
+abstract contract ERC721URIStorage is ERC721 {
+
+    mapping(uint256 => string) private _tokenURIs;
+    string base = "IPFS_PREFIX";
+
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+
+        string memory _tokenURI = _tokenURIs[tokenId];
+
+        if (bytes(_tokenURI).length > 0) {
+            return string(abi.encodePacked(base, _tokenURI));
+        }
+
+        return super.tokenURI(tokenId);
+    }
+
+    // set IPFS Prefix
+    function _setBaseURI(string memory _base) internal {
+        base = _base;
+    }
+
+    function _setTokenURI(uint256 tokenId, uint256 problemNumber) internal virtual {
+        // require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
+        string memory _tokenURI = string(abi.encodePacked(base, toString(problemNumber))); 
+        _tokenURIs[tokenId] = _tokenURI;
+    }
+
+    function _burn(uint256 tokenId) internal virtual override {
+        super._burn(tokenId);
+
+        if (bytes(_tokenURIs[tokenId]).length != 0) {
+            delete _tokenURIs[tokenId];
+        }
+    }
+}
+
+contract RewardContract is ERC721URIStorage {
 
     uint id = 0;
 
@@ -231,17 +353,10 @@ contract RewardContract is ERC721, ConsumeMsgContract {
         uint256 _timestamp,
         bytes memory signature
     ) external {
-        require(
-            VerifySignature(
-                _solver,
-                _problemNumber,
-                _message,
-                _timestamp,
-                signature
-            )
-        );
+
         _mint(_solver, id);
         id += 1;
+        _setTokenURI(id, _problemNumber);
     }
 
     function burn(uint256 _id) external {

@@ -25,23 +25,18 @@ async function main() {
         ["address", "uint256", "uint256", "address"],
         [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr]
     )
-    const msgHash = ethers.utils.keccak256(encode)
+    const msgHash = ethers.utils.solidityKeccak256(["bytes"], [encode]);
 
-    const messageHash = ethers.utils.solidityKeccak256(["address", "uint256", "uint256", "address"],
-        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr])
-    const prefix = "\x19Ethereum Signed Message:\n";
-    const msg = ethers.utils.solidityKeccak256(["string", "bytes32"], 
-        [prefix, msgHash])
-    console.log(msg);
+    // const prefix = "\x19Ethereum Signed Message:\n32";
+    // const msg = ethers.utils.solidityKeccak256(["string", "bytes32"], 
+        // [prefix, msgHash])
+    // console.log(msg);
     
-    const messageHashBinary = "\x19Ethereum Signed Message:\n" + ethers.utils.arrayify(messageHash).length + ethers.utils.arrayify(messageHash)
+    const messageHashBinary = "\x19Ethereum Signed Message:\n" + ethers.utils.arrayify(msgHash).length + ethers.utils.arrayify(msgHash)
     
-    const signature = await wallet.signMessage("0x58c195d0cad5b5d8ffa9fa639cd04308203b86332f9fac3643d82498aa479f25")
-    const verified = ethers.utils.verifyMessage(ethers.utils.hexlify("0x58c195d0cad5b5d8ffa9fa639cd04308203b86332f9fac3643d82498aa479f25"), signature)
-
-    // const sig = ethers.utils.splitSignature(signature);
-    // console.log(sig.v, sig.r, sig.s);
-     
+    const signature = await wallet.signMessage(msgHash)
+    const verified = ethers.utils.verifyMessage(msgHash, signature)
+      
     console.log(`${verified}`);
     console.log(`\nSigning Hash: ${msgHash}`)
     console.log(`Signature: ${signature}`)
@@ -53,6 +48,15 @@ async function main() {
     console.log(`${problemSolverAddr}, ${problemNumber}, ${problemSolvedTimestamp}, ${approverKeyAddr}, ${signature}`);
         
     // for(let i = 0; i < messageHashBinary.length; i++) console.log(messageHashBinary[i]);
+    console.log("\n==============================================================\n");
+    const mh = ethers.utils.id("Hello World");
+    const mhb = ethers.utils.arrayify(mh)
+    console.log(ethers.utils.hexlify(mhb));
+    const sg = await wallet.signMessage(mhb)
+    const recovered = ethers.utils.verifyMessage(mhb, sg)
+    console.log(sg);
+    console.log(recovered);
+    
     
     
 }
