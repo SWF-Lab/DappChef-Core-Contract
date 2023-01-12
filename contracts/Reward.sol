@@ -56,16 +56,24 @@ interface IERC721Receiver {
     ) external returns (bytes4);
 }
 
-interface IERC721Metadata is IERC721 {
+interface IERC721Metadata is IERC721/*, IERC721Receiver*/ {
 
     function name() external view returns (string memory);
 
     function symbol() external view returns (string memory);
 
     function tokenURI(uint256 tokenId) external view returns (string memory);
+
+    // do not know how to implement yet
+    // function onERC721Received(
+    //     address operator,
+    //     address from,
+    //     uint256 tokenId,
+    //     bytes calldata data
+    // ) external returns (bytes4);
 }
 
-contract ERC721 is IERC721Metadata {
+contract ERC721 is IERC721Metadata, ConsumeMsg  {
 
     string private _name;
     string private _symbol;
@@ -225,14 +233,27 @@ contract ERC721 is IERC721Metadata {
         return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, toString(tokenId))) : "";
     }
 
-    function _mint(address to, uint256 id) internal {
-        require(to != address(0), "mint to zero address");
+    function _mint(
+        address _solver,
+        uint256 id,
+        uint256 _problemNumber,
+        uint256 _timestamp,
+        address _approverKeyAddr,
+        bytes memory signature
+    ) internal {
+        require(_solver != address(0), "mint to zero address");
         require(_ownerOf[id] == address(0), "already minted");
+        require(VerifySignature(
+            _solver,
+            _problemNumber,
+            _timestamp,
+            _approverKeyAddr,
+            signature
+        ), "not verified signer");
+        _balanceOf[_solver]++;
+        _ownerOf[id] = _solver;
 
-        _balanceOf[to]++;
-        _ownerOf[id] = to;
-
-        emit Transfer(address(0), to, id);
+        emit Transfer(address(0), _solver, id);
     }
 
     function _burn(uint256 id) internal virtual {
@@ -246,6 +267,15 @@ contract ERC721 is IERC721Metadata {
 
         emit Transfer(owner, address(0), id);
     }
+
+    // function onERC721Received(
+    //     address operator,
+    //     address from,
+    //     uint256 tokenId,
+    //     bytes calldata data
+    // ) external returns (bytes4){
+    //     return this.onERC721Received.selector;
+    // }
 
     // Implementation of toString() from OZ
     bytes16 private constant _SYMBOLS = "0123456789abcdef";
@@ -349,12 +379,12 @@ contract RewardContract is ERC721URIStorage {
     function mint(
         address _solver,
         uint256 _problemNumber,
-        string memory _message,
         uint256 _timestamp,
+        address _approverKeyAddr,
         bytes memory signature
     ) external {
 
-        _mint(_solver, id);
+        _mint(_solver, id, _problemNumber, _timestamp, _approverKeyAddr, signature);
         id += 1;
         _setTokenURI(id, _problemNumber);
     }

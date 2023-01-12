@@ -15,7 +15,7 @@ How to Sign and Verify
 3. Compare recovered signer to claimed signer
 */
 
-contract ConsumeMsgContract {
+contract ConsumeMsg {
     address[] signingKey = [
         0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec,
         0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec,
@@ -49,6 +49,10 @@ contract ConsumeMsgContract {
                     _messageHash
                 )
             );
+    }
+
+    function getHash(uint _input) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_input));
     }
 
     function VerifySignature(
