@@ -27,10 +27,10 @@ contract ConsumeMsgContract {
     function getMessageHash(
         address _solver,
         uint256 _problemNumber,
-        string memory _message,
-        uint256 _timestamp
+        uint256 _timestamp,
+        address _approverKeyAddr
     ) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(_solver, _problemNumber, _message, _timestamp));
+        return keccak256(abi.encodePacked(_solver, _problemNumber, _timestamp, _approverKeyAddr));
     }
 
     function getEthSignedMessageHash(bytes32 _messageHash)
@@ -54,11 +54,11 @@ contract ConsumeMsgContract {
     function VerifySignature(
         address _solver,
         uint256 _problemNumber,
-        string memory _message,
         uint256 _timestamp,
+        address _approverKeyAddr,
         bytes memory signature
     ) public view returns (bool) {
-        bytes32 messageHash = getMessageHash(_solver, _problemNumber, _message, _timestamp);
+        bytes32 messageHash = getMessageHash(_solver, _problemNumber, _timestamp, _approverKeyAddr);
         bytes32 ethSignedMessageHash = getEthSignedMessageHash(messageHash);
 
 

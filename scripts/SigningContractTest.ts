@@ -36,7 +36,7 @@ async function main() {
     
     const messageHashBinary = "\x19Ethereum Signed Message:\n" + ethers.utils.arrayify(messageHash).length + ethers.utils.arrayify(messageHash)
     
-    const signature = await wallet.signMessage(ethers.utils.hexlify("0x58c195d0cad5b5d8ffa9fa639cd04308203b86332f9fac3643d82498aa479f25"))
+    const signature = await wallet.signMessage("0x58c195d0cad5b5d8ffa9fa639cd04308203b86332f9fac3643d82498aa479f25")
     const verified = ethers.utils.verifyMessage(ethers.utils.hexlify("0x58c195d0cad5b5d8ffa9fa639cd04308203b86332f9fac3643d82498aa479f25"), signature)
 
     // const sig = ethers.utils.splitSignature(signature);
