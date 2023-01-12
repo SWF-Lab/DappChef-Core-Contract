@@ -29,7 +29,7 @@ contract ConsumeMsgContract {
         uint256 _problemNumber,
         string memory _message,
         uint256 _timestamp
-    ) internal pure returns (bytes32) {
+    ) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(_solver, _problemNumber, _message, _timestamp));
     }
 
@@ -61,7 +61,12 @@ contract ConsumeMsgContract {
         bytes32 messageHash = getMessageHash(_solver, _problemNumber, _message, _timestamp);
         bytes32 ethSignedMessageHash = getEthSignedMessageHash(messageHash);
 
-        return recoverSigner(ethSignedMessageHash, signature) == signingKey[0];
+
+        return (recoverSigner(ethSignedMessageHash, signature) == signingKey[0]
+        || recoverSigner(ethSignedMessageHash, signature) == signingKey[1]
+        || recoverSigner(ethSignedMessageHash, signature) == signingKey[2]
+        || recoverSigner(ethSignedMessageHash, signature) == signingKey[3]
+        || recoverSigner(ethSignedMessageHash, signature) == signingKey[4]);
     }
 
     function recoverSigner(
