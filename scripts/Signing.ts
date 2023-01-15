@@ -11,6 +11,7 @@ async function main() {
     const problemNumber = '997'
     const problemSolvedTimestamp = 1673070083
     const approverKeyAddr = process.env.CHEF_KEY_ARRR as string
+    const approverIndex = 0
     const nonce = 0
 
     console.log(
@@ -20,17 +21,18 @@ async function main() {
     console.log(`    - Problem Number is       : ${problemNumber}`)
     console.log(`    - Problem Solved Timestamp: ${problemSolvedTimestamp}`)
     console.log(`    - Signature Approver Key  : ${approverKeyAddr}`)
+    console.log(`    - Signature Approver Index: ${approverIndex}`)
     console.log(`    - Nonce                   : ${nonce}`)
 
     // Sign the Msg
     const encode = ethers.utils.solidityPack(
-        ["address", "uint256", "uint256", "address", "uint256"],
-        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr, nonce]
+        ["address", "uint256", "uint256", "address", "uint8", "uint256"],
+        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr, approverIndex, nonce]
     )
     const msgHash = ethers.utils.keccak256(encode)
 
-    const messageHash = ethers.utils.solidityKeccak256(["address", "uint256", "uint256", "address", "uint256"],
-        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr, nonce])
+    const messageHash = ethers.utils.solidityKeccak256(["address", "uint256", "uint256", "address", "uint8", "uint256"],
+        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr, approverIndex, nonce])
     const signingHash = ethers.utils.solidityKeccak256(["string", "bytes32"], ["\x19Ethereum Signed Message:\n32", messageHash])
     const signature = await wallet.signMessage(ethers.utils.arrayify(messageHash))
     const verified = ethers.utils.verifyMessage(ethers.utils.arrayify(messageHash), signature)
