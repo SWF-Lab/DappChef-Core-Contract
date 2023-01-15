@@ -11,6 +11,7 @@ async function main() {
     const problemNumber = '997'
     const problemSolvedTimestamp = 1673070083
     const approverKeyAddr = process.env.CHEF_KEY_ARRR as string
+    const nonce = 0
 
     console.log(
         `Signer Key Address: ${wallet.address}`,
@@ -19,23 +20,27 @@ async function main() {
     console.log(`    - Problem Number is       : ${problemNumber}`)
     console.log(`    - Problem Solved Timestamp: ${problemSolvedTimestamp}`)
     console.log(`    - Signature Approver Key  : ${approverKeyAddr}`)
+    console.log(`    - Nonce                   : ${nonce}`)
 
     // Sign the Msg
     const encode = ethers.utils.solidityPack(
-        ["address", "uint256", "uint256", "address"],
-        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr]
+        ["address", "uint256", "uint256", "address", "uint256"],
+        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr, nonce]
     )
     const msgHash = ethers.utils.keccak256(encode)
 
-    const messageHash = ethers.utils.solidityKeccak256(["address", "uint256", "uint256", "address"],
-        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr])
+    const messageHash = ethers.utils.solidityKeccak256(["address", "uint256", "uint256", "address", "uint256"],
+        [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr, nonce])
     const signingHash = ethers.utils.solidityKeccak256(["string", "bytes32"], ["\x19Ethereum Signed Message:\n32", messageHash])
-    const signature = await wallet.signMessage(messageHash)
-    const verified = ethers.utils.verifyMessage(messageHash, signature)
+    const signature = await wallet.signMessage(ethers.utils.arrayify(messageHash))
+    const verified = ethers.utils.verifyMessage(ethers.utils.arrayify(messageHash), signature)
 
     console.log(`\ngetMessageHash: ${msgHash}`)
     console.log(`getEthSignedMessageHash: ${signingHash}`)
     console.log(`Signature: ${signature}`)
+
+    console.log(`\nrecoverSigner(${signingHash},${signature})`)
+    console.log(`\nVerifySignature(${problemSolverAddr},${problemNumber},${problemSolvedTimestamp},${approverKeyAddr},${nonce},${signature})`)
 
     // Check the Signature is Valid
     // console.log(verified.toLowerCase())
