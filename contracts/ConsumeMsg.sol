@@ -17,10 +17,10 @@ How to Sign and Verify
 
 contract ConsumeMsg {
     address[] signingKey = [
-        0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec,
-        0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec,
-        0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec,
-        0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec,
+        0x0b88cd9c5B6B73145332316C199a5B3a52415730,
+        0x2b83c71A59b926137D3E1f37EF20394d0495d72d,
+        0x189C92f28047c979cA2D17C13e3A12963EB1b8B4,
+        0xd8538ea74825080c0c80B9B175f57e91Ff885Cb4,
         0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec
     ];
 
@@ -28,9 +28,19 @@ contract ConsumeMsg {
         address _solver,
         uint256 _problemNumber,
         uint256 _timestamp,
-        address _approverKeyAddr
+        address _approverKeyAddr,
+        uint8 _approverIndex,
+        uint256 _nonce
     ) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(_solver, _problemNumber, _timestamp, _approverKeyAddr));
+        return keccak256(
+            abi.encodePacked(
+                _solver, 
+                _problemNumber, 
+                _timestamp, 
+                _approverKeyAddr,
+                _approverIndex,
+                _nonce
+        ));
     }
 
     function getEthSignedMessageHash(bytes32 _messageHash)
@@ -60,17 +70,14 @@ contract ConsumeMsg {
         uint256 _problemNumber,
         uint256 _timestamp,
         address _approverKeyAddr,
-        bytes memory signature
+        uint8 _approverIndex,
+        uint256 _nonce,
+        bytes memory _signature
     ) public view returns (bool) {
-        bytes32 messageHash = getMessageHash(_solver, _problemNumber, _timestamp, _approverKeyAddr);
+        bytes32 messageHash = getMessageHash(_solver, _problemNumber, _timestamp, _approverKeyAddr, _approverIndex, _nonce);
         bytes32 ethSignedMessageHash = getEthSignedMessageHash(messageHash);
 
-
-        return (recoverSigner(ethSignedMessageHash, signature) == signingKey[0]
-        || recoverSigner(ethSignedMessageHash, signature) == signingKey[1]
-        || recoverSigner(ethSignedMessageHash, signature) == signingKey[2]
-        || recoverSigner(ethSignedMessageHash, signature) == signingKey[3]
-        || recoverSigner(ethSignedMessageHash, signature) == signingKey[4]);
+        return (recoverSigner(ethSignedMessageHash, _signature) == signingKey[_approverIndex]);
     }
 
     function recoverSigner(
@@ -82,7 +89,7 @@ contract ConsumeMsg {
         return ecrecover(_ethSignedMessageHash, v, r, s);
     }
 
-    function splitSignature(bytes memory sig)
+    function splitSignature(bytes memory _sig)
         public
         pure
         returns (
@@ -91,7 +98,7 @@ contract ConsumeMsg {
             uint8 v
         )
     {
-        require(sig.length == 65, "invalid signature length");
+        require(_sig.length == 65, "invalid signature length");
 
         assembly {
             /*
@@ -104,11 +111,11 @@ contract ConsumeMsg {
             */
 
             // first 32 bytes, after the length prefix
-            r := mload(add(sig, 32))
+            r := mload(add(_sig, 32))
             // second 32 bytes
-            s := mload(add(sig, 64))
+            s := mload(add(_sig, 64))
             // final byte (first byte of the next 32 bytes)
-            v := byte(0, mload(add(sig, 96)))
+            v := byte(0, mload(add(_sig, 96)))
         }
 
         // implicitly return (r, s, v)
