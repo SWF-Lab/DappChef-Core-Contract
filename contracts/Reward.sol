@@ -239,7 +239,9 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
         uint256 _problemNumber,
         uint256 _timestamp,
         address _approverKeyAddr,
-        bytes memory signature
+        uint8 _approverIndex,
+        uint256 _nonce,
+        bytes memory _signature
     ) internal {
         require(_solver != address(0), "mint to zero address");
         require(_ownerOf[id] == address(0), "already minted");
@@ -248,7 +250,9 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
             _problemNumber,
             _timestamp,
             _approverKeyAddr,
-            signature
+            _approverIndex,
+            _nonce,
+            _signature
         ), "not verified signer");
         _balanceOf[_solver]++;
         _ownerOf[id] = _solver;
@@ -372,7 +376,7 @@ abstract contract ERC721URIStorage is ERC721 {
     }
 }
 
-contract RewardContract is ERC721URIStorage {
+contract Reward is ERC721URIStorage {
 
     uint id = 0;
 
@@ -381,10 +385,12 @@ contract RewardContract is ERC721URIStorage {
         uint256 _problemNumber,
         uint256 _timestamp,
         address _approverKeyAddr,
-        bytes memory signature
+        uint8 _approverIndex,
+        uint256 _nonce,
+        bytes memory _signature
     ) external {
 
-        _mint(_solver, id, _problemNumber, _timestamp, _approverKeyAddr, signature);
+        _mint(_solver, id, _problemNumber, _timestamp, _approverKeyAddr, _approverIndex, _nonce, _signature);
         id += 1;
         _setTokenURI(id, _problemNumber);
     }
