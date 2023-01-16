@@ -1,0 +1,1 @@
+# ConsumeMsg Contract
