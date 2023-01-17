@@ -2,11 +2,11 @@
 pragma solidity ^0.8.17;
 
 contract Deployer {
-    event Deploy(address);
+    event Deploy(address indexed deployAddr, address indexed solver, uint indexed problemNum);
 
     receive() external payable {}
 
-    function deploy(bytes memory _code) external payable returns (address addr) {
+    function deploy(bytes memory _code, address solver, uint problemNum) external payable returns (address addr) {
         assembly {
             // create(v, p, n)
             // v = amount of ETH to send
@@ -17,7 +17,7 @@ contract Deployer {
         // return address 0 on error
         require(addr != address(0), "deploy failed");
 
-        emit Deploy(addr);
+        emit Deploy(addr, solver, problemNum);
     }
 
     function execute(address _target, bytes memory _data) external payable {
