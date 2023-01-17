@@ -16,10 +16,10 @@ How to Sign and Verify
 */
 
 contract ConsumeMsg {
-    address[] signingKey = [
+   address[] signingKey = [
         0x0b88cd9c5B6B73145332316C199a5B3a52415730,
         0x2b83c71A59b926137D3E1f37EF20394d0495d72d,
-        0x189C92f28047c979cA2D17C13e3A12963EB1b8B4,
+        0xdCca4cE55773359E191110Eeb21E0413f770032B,
         0xd8538ea74825080c0c80B9B175f57e91Ff885Cb4,
         0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec
     ];

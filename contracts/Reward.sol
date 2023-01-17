@@ -77,6 +77,8 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
 
     string private _name;
     string private _symbol;
+    bool private isAcceptedToTransfer; // need to check the visuality 
+    uint256 private nonce;
 
     event Transfer(
         address indexed from,
@@ -173,9 +175,8 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
     ) public {
         require(from == _ownerOf[id], "from != owner");
         require(to != address(0), "transfer to zero address");
-
         require(_isApprovedOrOwner(from, msg.sender, id), "not authorized");
-
+        require(!isAcceptedToTransfer, "you cannot transfer your Reward NFT"); // to make NFT untransferable
         _balanceOf[from]--;
         _balanceOf[to]++;
         _ownerOf[id] = to;
@@ -245,6 +246,8 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
     ) internal {
         require(_solver != address(0), "mint to zero address");
         require(_ownerOf[id] == address(0), "already minted");
+        require(msg.sender == _solver, "invalid msg sender");
+        require(_nonce > nonce, "have minted before");
         require(VerifySignature(
             _solver,
             _problemNumber,
@@ -256,7 +259,7 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
         ), "not verified signer");
         _balanceOf[_solver]++;
         _ownerOf[id] = _solver;
-
+        nonce += 1;
         emit Transfer(address(0), _solver, id);
     }
 
@@ -271,6 +274,10 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
 
         emit Transfer(owner, address(0), id);
     }
+
+    function _exists(uint256 id) internal view returns(bool) {
+        return _ownerOf[id] != address(0);
+    } 
 
     // function onERC721Received(
     //     address operator,
@@ -338,33 +345,31 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
             return buffer;
         }
     }
+
+    function _setIsAcceptedToTransfer(bool _transferStatus) internal {
+        isAcceptedToTransfer = _transferStatus;
+    }
 }
 
 abstract contract ERC721URIStorage is ERC721 {
 
-    mapping(uint256 => string) private _tokenURIs;
-    string base = "IPFS_PREFIX";
+    // tokenId => tokenURI
+    mapping(uint256 => string) internal _tokenURIs;
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
 
         string memory _tokenURI = _tokenURIs[tokenId];
 
         if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(base, _tokenURI));
+            return string(abi.encodePacked(_tokenURI));
         }
 
         return super.tokenURI(tokenId);
     }
 
-    // set IPFS Prefix
-    function _setBaseURI(string memory _base) internal {
-        base = _base;
-    }
-
-    function _setTokenURI(uint256 tokenId, uint256 problemNumber) internal virtual {
-        // require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
-        string memory _tokenURI = string(abi.encodePacked(base, toString(problemNumber))); 
-        _tokenURIs[tokenId] = _tokenURI;
+    function _setTokenURI(uint256 id, string memory _tokenURI) internal virtual {
+        require(_exists(id), "ERC721URIStorage: URI set of nonexistent token");
+        _tokenURIs[id] = _tokenURI;
     }
 
     function _burn(uint256 tokenId) internal virtual override {
@@ -378,7 +383,17 @@ abstract contract ERC721URIStorage is ERC721 {
 
 contract Reward is ERC721URIStorage {
 
-    uint id = 0;
+    uint256 private id = 0;
+    mapping(address => bool) private owners;
+
+    modifier onlyOwner(address msgSender) {
+        require(owners[msgSender] == true, "not contract owner");
+        _;
+    }
+
+    constructor() {
+        owners[msg.sender] = true;
+    }
 
     function mint(
         address _solver,
@@ -387,16 +402,25 @@ contract Reward is ERC721URIStorage {
         address _approverKeyAddr,
         uint8 _approverIndex,
         uint256 _nonce,
-        bytes memory _signature
+        bytes memory _signature,
+        string memory _tokenURI
     ) external {
 
         _mint(_solver, id, _problemNumber, _timestamp, _approverKeyAddr, _approverIndex, _nonce, _signature);
+        _setTokenURI(id, _tokenURI);
         id += 1;
-        _setTokenURI(id, _problemNumber);
     }
 
     function burn(uint256 _id) external {
         require(msg.sender == _ownerOf[id], "not owner");
         _burn(_id);
+    }
+
+    function setOwner(address _owner) public onlyOwner(msg.sender){
+        owners[_owner] = true;
+    }
+
+    function setIsAcceptedToTransfer(bool _transferStatus) public onlyOwner(msg.sender){
+        _setIsAcceptedToTransfer(_transferStatus);
     }
 }
