@@ -12,7 +12,7 @@ chai.use(chaiAsPromised)
 const accounts = {
   mnemonic: process.env.MNEMONIC || "test test test test test test test test test test test junk",
 }
-const provuderURL = process.env.ETHEREUM_URL || ""
+const providerURL = process.env.ETHEREUM_URL || ""
 
 module.exports = {
   networks: {
@@ -30,12 +30,12 @@ module.exports = {
     },
     mainnet: {
       chainId: 1,
-      url: provuderURL,
+      url: providerURL,
       accounts,
     },
     goerli: {
       chainId: 5,
-      url: provuderURL,
+      url: providerURL,
       accounts,
     },
   },

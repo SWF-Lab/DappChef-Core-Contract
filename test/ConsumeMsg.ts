@@ -1,5 +1,6 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
+import { Contract } from "ethers";
 
 // to get approver index
 const checkApproverIndex = (address) => {
@@ -12,33 +13,28 @@ const checkApproverIndex = (address) => {
 }
 
 describe("ConsumeMsg", () => {
-    let consumeMsgContract: any
+    let ConsumeMsgContract: Contract;
+    let users:  any[] = [];
+    const provider = ethers.provider;
+    const signer = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider);
 
-    const users: any = []
+     // solver info ( data need to be signed)
+    const problemSolverAddr = '0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba';
+    const problemNumber = '997';
+    const problemSolvedTimestamp = 1673070083;
+    const approverKeyAddr = signer.address;
+    const approverIndex = checkApproverIndex(signer.address);
+    const nonce = 0;
 
-    before(async () => {
-        
+
+    beforeEach(async () => {
+        let ConsumeMsg = await ethers.getContractFactory("ConsumeMsg");
+        ConsumeMsgContract = await ConsumeMsg.deploy();
+        await ConsumeMsgContract.deployed();
     })
 
     describe("verifySignature", () => {
         it("should verify signature", async () => {
-            // signer
-            const provider = ethers.provider;
-            const signer = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider);
-
-            // contract deployment
-            const ConsumeMsg = await ethers.getContractFactory("ConsumeMsg");
-            const ConsumeMsgContract = await ConsumeMsg.deploy();
-            await ConsumeMsgContract.deployed();
-
-            // solver info ( data need to be signed)
-            const problemSolverAddr = '0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba';
-            const problemNumber = '997';
-            const problemSolvedTimestamp = 1673070083;
-            const approverKeyAddr = signer.address;
-            const approverIndex = checkApproverIndex(signer.address);
-            const nonce = 0;
-
             const hash = await ConsumeMsgContract.getMessageHash(
                 problemSolverAddr,
                 problemNumber,
@@ -47,9 +43,8 @@ describe("ConsumeMsg", () => {
                 approverIndex,
                 nonce
             )
-
+            
             const sig = await signer.signMessage(ethers.utils.arrayify(hash));
-            const ethHash = await ConsumeMsgContract.getEthSignedMessageHash(hash);
 
             // logging solver entire signature infomation 
             console.log(`      Solver and Signer Infomation:`);
@@ -65,9 +60,7 @@ describe("ConsumeMsg", () => {
 
             // should return true
             expect(
-                console.log(
-                    "      Sending Above as Inputs, It will return |" +
-                    await ConsumeMsgContract.VerifySignature(
+                  await ConsumeMsgContract.VerifySignature(
                         problemSolverAddr,
                         problemNumber,
                         problemSolvedTimestamp,
@@ -75,35 +68,21 @@ describe("ConsumeMsg", () => {
                         approverIndex,
                         nonce,
                         sig
-                    )
-                    + "| "
-                )
-            )
+                  )  
+            ).to.equal(true);
 
             // wrong approverKeyAddr => should return false
             expect(
-                console.log(
-                    "      Converting Approver Address into Zero Address, It will return |" +
-                    await ConsumeMsgContract.VerifySignature(
-                        problemSolverAddr,
-                        problemNumber,
-                        problemSolvedTimestamp,
-                        ethers.constants.AddressZero, // zero address
-                        approverIndex,
-                        nonce,
-                        sig
-                    )
-                    + "| "
-                )
-            )
+              await ConsumeMsgContract.VerifySignature(
+                  problemSolverAddr,
+                  problemNumber,
+                  problemSolvedTimestamp,
+                  ethers.constants.AddressZero, // zero address
+                  approverIndex,
+                  nonce,
+                  sig
+              )
+            ).to.equal(false);
         })
-
-        
     })
-
-    // describe("", () => {
-    //     it("", async () => { })
-
-    //     it("", async () => { })
-    // })
 })
