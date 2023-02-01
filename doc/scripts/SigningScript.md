@@ -4,7 +4,7 @@
 
 ## Usage
 
-1. `$ yarn execute scripts/Signing.ts
+1. `$ yarn execute scripts/Signing.ts`
 1. Check the log information is correct.
 
 ```bash
@@ -17,12 +17,19 @@ Signer Key Address: 0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec
     - Problem Number is       : 997
     - Problem Solved Timestamp: 1673070083
     - Signature Approver Key  : 0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec
+    - Signature Approver Index: 0
+    - Nonce                   : 0
 
-Signing Hash: 0xfc27d62914c7b824a0c526c1b23fa720d8e7ae5d65895f66266bfacf4c8e5bee
-Signature: 0xe87dc483dc4169c103a74127743778767a5802281958c163f4232d9cd46f0bf72fe194c0e0b4425fb7c4c203839c7c98d14eed02d214c5239e55836540915aa81c
+getMessageHash: 0x02fa9a34b8f1f4b190735c13f7ec9458a410d3c9976f1e589bdd2ded24689771
+getEthSignedMessageHash: 0xccbf500d2194338efef923c7fe17b0e2b84c76132306e8f2bf5ec3b749373541
+Signature: 0xf48090ed731d9b3c956b9ee9843fd96d845879fc22763be659f2fb6f8229b52c245e72e3fb3540e969970333d52fa307b80cb3a04d088364f26c527c4767cb681b
 
-Check the Signature is Valid...Invalid!
-Done in 4.42s.
+recoverSigner(0xccbf500d2194338efef923c7fe17b0e2b84c76132306e8f2bf5ec3b749373541,0xf48090ed731d9b3c956b9ee9843fd96d845879fc22763be659f2fb6f8229b52c245e72e3fb3540e969970333d52fa307b80cb3a04d088364f26c527c4767cb681b)
+
+VerifySignature(0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba,997,1673070083,0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec,0,0xf48090ed731d9b3c956b9ee9843fd96d845879fc22763be659f2fb6f8229b52c245e72e3fb3540e969970333d52fa307b80cb3a04d088364f26c527c4767cb681b)
+
+Check the Signature is...Approved!
+Done in 6.77s.
 ```
 
 > Signing Script could use for three main way:
