@@ -8,7 +8,8 @@
     "compile": "hardhat compile",
     "deploy": "yarn compile && hardhat deploy",
     "test": "hardhat test",
-    "test:coverage": "hardhat coverage",
+    "test-consumeMsg": "hardhat test ./test/ConsumeMsg.ts",
+    "test-reward": "hardhat test ./test/Reward.ts",
     "execute": "node -r ts-node/register -r tsconfig-paths/register hardhatRunWithArgs.ts"
   },
   "devDependencies": {
