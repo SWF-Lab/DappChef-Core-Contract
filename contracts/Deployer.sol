@@ -6,22 +6,28 @@ contract Deployer {
 
     receive() external payable {}
 
-    function deploy(bytes memory _code, address solver, uint problemNum) external payable returns (address addr) {
+    // bytecode should be abi.encodePacked(creationCode, constructorCode);
+    function deploy(bytes memory bytecode, address solver, uint problemNum) 
+        external 
+        payable 
+        returns (address addr) {
+
+        bytes32 _salt = keccak256(abi.encodePacked(block.timestamp, msg.sender));
+
         assembly {
-            // create(v, p, n)
-            // v = amount of ETH to send
-            // p = pointer in memory to start of code
-            // n = size of code
-            addr := create(callvalue(), add(_code, 0x20), mload(_code))
+            addr := create2(
+                callvalue(), // wei sent with current call
+                // Actual code starts after skipping the first 32 bytes
+                add(bytecode, 0x20),
+                mload(bytecode), // Load the size of code contained in the first 32 bytes
+                _salt // Salt from function arguments
+            )
+
+            if iszero(extcodesize(addr)) {
+                revert(0, 0)
+            }
         }
-        // return address 0 on error
-        require(addr != address(0), "deploy failed");
 
         emit Deploy(addr, solver, problemNum);
-    }
-
-    function execute(address _target, bytes memory _data) external payable {
-        (bool success, ) = _target.call{value: msg.value}(_data);
-        require(success, "failed");
     }
 }
