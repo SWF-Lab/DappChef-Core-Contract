@@ -370,7 +370,7 @@ contract Reward is ERC721URIStorage {
     }
 
     function getTokenID (address account, uint _problemNumber) public view returns (uint) {
-        require(SolvingStatus[account][_problemNumber] - 1 > 0, "haven't answered this problem correctly");
+        require(SolvingStatus[account][_problemNumber] - 1 >= 0, "haven't answered this problem correctly");
         return SolvingStatus[account][_problemNumber] - 1;
     }
 
