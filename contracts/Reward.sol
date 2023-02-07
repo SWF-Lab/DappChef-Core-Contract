@@ -56,29 +56,24 @@ interface IERC721Receiver {
     ) external returns (bytes4);
 }
 
-interface IERC721Metadata is IERC721/*, IERC721Receiver*/ {
+interface IERC721Metadata is IERC721 {
 
     function name() external view returns (string memory);
 
     function symbol() external view returns (string memory);
 
-    function tokenURI(uint256 tokenId) external view returns (string memory);
-
-    // do not know how to implement yet
-    // function onERC721Received(
-    //     address operator,
-    //     address from,
-    //     uint256 tokenId,
-    //     bytes calldata data
-    // ) external returns (bytes4);
 }
 
 contract ERC721 is IERC721Metadata, ConsumeMsg  {
 
     string private _name;
     string private _symbol;
-    bool private isAcceptedToTransfer; // need to check the visuality 
-    uint256 private nonce;
+    bool private isAcceptedToTransfer;
+
+    constructor(string memory __name, string memory __symbol) {
+        _name = __name;
+        _symbol = __symbol;
+    }
 
     event Transfer(
         address indexed from,
@@ -227,13 +222,6 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
         );
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        // _requireMinted(tokenId);
-
-        string memory baseURI = "x";
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, toString(tokenId))) : "";
-    }
-
     function _mint(
         address _solver,
         uint256 id,
@@ -241,25 +229,21 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
         uint256 _timestamp,
         address _approverKeyAddr,
         uint8 _approverIndex,
-        uint256 _nonce,
         bytes memory _signature
     ) internal {
         require(_solver != address(0), "mint to zero address");
         require(_ownerOf[id] == address(0), "already minted");
         require(msg.sender == _solver, "invalid msg sender");
-        require(_nonce > nonce, "have minted before");
         require(VerifySignature(
             _solver,
             _problemNumber,
             _timestamp,
             _approverKeyAddr,
             _approverIndex,
-            _nonce,
             _signature
         ), "not verified signer");
         _balanceOf[_solver]++;
         _ownerOf[id] = _solver;
-        nonce += 1;
         emit Transfer(address(0), _solver, id);
     }
 
@@ -277,73 +261,6 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
 
     function _exists(uint256 id) internal view returns(bool) {
         return _ownerOf[id] != address(0);
-    } 
-
-    // function onERC721Received(
-    //     address operator,
-    //     address from,
-    //     uint256 tokenId,
-    //     bytes calldata data
-    // ) external returns (bytes4){
-    //     return this.onERC721Received.selector;
-    // }
-
-    // Implementation of toString() from OZ
-    bytes16 private constant _SYMBOLS = "0123456789abcdef";
-    function log10(uint256 value) internal pure returns (uint256) {
-        uint256 result = 0;
-        unchecked {
-            if (value >= 10 ** 64) {
-                value /= 10 ** 64;
-                result += 64;
-            }
-            if (value >= 10 ** 32) {
-                value /= 10 ** 32;
-                result += 32;
-            }
-            if (value >= 10 ** 16) {
-                value /= 10 ** 16;
-                result += 16;
-            }
-            if (value >= 10 ** 8) {
-                value /= 10 ** 8;
-                result += 8;
-            }
-            if (value >= 10 ** 4) {
-                value /= 10 ** 4;
-                result += 4;
-            }
-            if (value >= 10 ** 2) {
-                value /= 10 ** 2;
-                result += 2;
-            }
-            if (value >= 10 ** 1) {
-                result += 1;
-            }
-        }
-        return result;
-    }
-
-    function toString(uint256 value) internal pure returns (string memory) {
-        unchecked {
-            uint256 length = log10(value) + 1;
-            string memory buffer = new string(length);
-            uint256 ptr;
-            /// @solidity memory-safe-assembly
-            assembly {
-                ptr := add(buffer, add(32, length))
-            }
-            while (true) {
-                ptr--;
-                /// @solidity memory-safe-assembly
-                assembly {
-                    mstore8(ptr, byte(mod(value, 10), _SYMBOLS))
-                }
-                value /= 10;
-                if (value == 0) break;
-            }
-            return buffer;
-        }
     }
 
     function _setIsAcceptedToTransfer(bool _transferStatus) internal {
@@ -356,7 +273,7 @@ abstract contract ERC721URIStorage is ERC721 {
     // tokenId => tokenURI
     mapping(uint256 => string) internal _tokenURIs;
 
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
 
         string memory _tokenURI = _tokenURIs[tokenId];
 
@@ -364,7 +281,7 @@ abstract contract ERC721URIStorage is ERC721 {
             return string(abi.encodePacked(_tokenURI));
         }
 
-        return super.tokenURI(tokenId);
+        return _tokenURIs[tokenId];
     }
 
     function _setTokenURI(uint256 id, string memory _tokenURI) internal virtual {
@@ -384,15 +301,18 @@ abstract contract ERC721URIStorage is ERC721 {
 contract Reward is ERC721URIStorage {
 
     uint256 private id = 0;
+    uint256 public nowTotal = 101;
+
     mapping(address => bool) private owners;
+    mapping(address => mapping (uint256 => uint256)) internal SolvingStatus;
+
+    constructor() ERC721("DappChefRewardNFTtest#1", "DCR") {
+            owners[msg.sender] = true;
+    }
 
     modifier onlyOwner(address msgSender) {
         require(owners[msgSender] == true, "not contract owner");
         _;
-    }
-
-    constructor() {
-        owners[msg.sender] = true;
     }
 
     function mint(
@@ -401,14 +321,57 @@ contract Reward is ERC721URIStorage {
         uint256 _timestamp,
         address _approverKeyAddr,
         uint8 _approverIndex,
-        uint256 _nonce,
         bytes memory _signature,
         string memory _tokenURI
     ) external {
-
-        _mint(_solver, id, _problemNumber, _timestamp, _approverKeyAddr, _approverIndex, _nonce, _signature);
+        require(SolvingStatus[msg.sender][_problemNumber] == 0, "already minted the same token");
+        _mint(_solver, id, _problemNumber, _timestamp, _approverKeyAddr, _approverIndex, _signature);
         _setTokenURI(id, _tokenURI);
+        SolvingStatus[msg.sender][_problemNumber] = id + 1;
         id += 1;
+    }
+
+    function mintInBatch(
+        address[] memory _solver,
+        uint256[] memory _problemNumber,
+        uint256[] memory _timestamp,
+        address[] memory _approverKeyAddr,
+        uint8[] memory _approverIndex,
+        bytes[] memory _signature,
+        string[] memory _tokenURI
+    ) external {
+        for (uint i = 0; i < _problemNumber.length; i++) {
+            require(SolvingStatus[msg.sender][_problemNumber[i]] == 0, "already minted the same token");
+            _mint(
+                _solver[i],
+                id,
+                _problemNumber[i],
+                _timestamp[i],
+                _approverKeyAddr[i],
+                _approverIndex[i],
+                _signature[i]
+            );
+            _setTokenURI(id, _tokenURI[i]);
+            SolvingStatus[msg.sender][_problemNumber[i]] = id + 1;
+            id += 1;
+        }
+    }
+
+    function getSolvingStatus(address account) public view returns ( uint256, uint256[] memory) {
+        uint256[] memory arr = new uint256[](nowTotal);
+        uint256 length = 0;
+        for (uint256 i = 0; i < nowTotal; i++) {
+            if (SolvingStatus[account][i] > 0) {
+                arr[length] = i;
+                length++;
+            }
+        }
+        return (length, arr);
+    }
+
+    function getTokenID (address account, uint _problemNumber) public view returns (uint) {
+        require(SolvingStatus[account][_problemNumber] - 1 >= 0, "haven't answered this problem correctly");
+        return SolvingStatus[account][_problemNumber] - 1;
     }
 
     function burn(uint256 _id) external {
@@ -416,6 +379,11 @@ contract Reward is ERC721URIStorage {
         _burn(_id);
     }
 
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+        return _tokenURIs[tokenId];
+    }
+    
+    // only owners can execute the functions below 
     function setOwner(address _owner) public onlyOwner(msg.sender){
         owners[_owner] = true;
     }
@@ -423,4 +391,8 @@ contract Reward is ERC721URIStorage {
     function setIsAcceptedToTransfer(bool _transferStatus) public onlyOwner(msg.sender){
         _setIsAcceptedToTransfer(_transferStatus);
     }
+
+    // function setNowTotal(uint256 _nowTotal) public onlyOwner(msg.sender) {
+    //     nowTotal = _nowTotal;
+    // }
 }

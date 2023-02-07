@@ -29,8 +29,7 @@ contract ConsumeMsg {
         uint256 _problemNumber,
         uint256 _timestamp,
         address _approverKeyAddr,
-        uint8 _approverIndex,
-        uint256 _nonce
+        uint8 _approverIndex
     ) public pure returns (bytes32) {
         return keccak256(
             abi.encodePacked(
@@ -38,8 +37,7 @@ contract ConsumeMsg {
                 _problemNumber, 
                 _timestamp, 
                 _approverKeyAddr,
-                _approverIndex,
-                _nonce
+                _approverIndex
         ));
     }
 
@@ -71,10 +69,9 @@ contract ConsumeMsg {
         uint256 _timestamp,
         address _approverKeyAddr,
         uint8 _approverIndex,
-        uint256 _nonce,
         bytes memory _signature
     ) public view returns (bool) {
-        bytes32 messageHash = getMessageHash(_solver, _problemNumber, _timestamp, _approverKeyAddr, _approverIndex, _nonce);
+        bytes32 messageHash = getMessageHash(_solver, _problemNumber, _timestamp, _approverKeyAddr, _approverIndex);
         bytes32 ethSignedMessageHash = getEthSignedMessageHash(messageHash);
 
         return (recoverSigner(ethSignedMessageHash, _signature) == signingKey[_approverIndex]);

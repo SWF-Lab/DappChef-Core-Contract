@@ -37,7 +37,6 @@ describe("ConsumeMsg", () => {
             const problemSolvedTimestamp = 1673070083;
             const approverKeyAddr = signer.address;
             const approverIndex = checkApproverIndex(signer.address);
-            const nonce = 0;
 
             const hash = await ConsumeMsgContract.getMessageHash(
                 problemSolverAddr,
@@ -45,7 +44,6 @@ describe("ConsumeMsg", () => {
                 problemSolvedTimestamp,
                 approverKeyAddr,
                 approverIndex,
-                nonce
             )
 
             const sig = await signer.signMessage(ethers.utils.arrayify(hash));
@@ -58,7 +56,6 @@ describe("ConsumeMsg", () => {
             console.log(`      - timestamp:        ${problemSolvedTimestamp}`);
             console.log(`      - approver address: ${approverKeyAddr}`);
             console.log(`      - approver index:   ${approverIndex}`);
-            console.log(`      - nonce:            ${nonce}`);
             console.log(`      - signature:        ${sig}\n`)
             
             // console.log("      recovered approver: ", await ConsumeMsgContract.recoverSigner(ethHash, sig));
@@ -66,44 +63,32 @@ describe("ConsumeMsg", () => {
             // should return true
             expect(
                 console.log(
-                    "      Sending Above as Inputs, It will return |" +
+                    "      Sending Above as Inputs, It will return ... " +
                     await ConsumeMsgContract.VerifySignature(
                         problemSolverAddr,
                         problemNumber,
                         problemSolvedTimestamp,
                         approverKeyAddr,
                         approverIndex,
-                        nonce,
                         sig
                     )
-                    + "| "
                 )
             )
 
             // wrong approverKeyAddr => should return false
             expect(
                 console.log(
-                    "      Converting Approver Address into Zero Address, It will return |" +
+                    "      Converting Approver Address into Zero Address, It will return ... " +
                     await ConsumeMsgContract.VerifySignature(
                         problemSolverAddr,
                         problemNumber,
                         problemSolvedTimestamp,
                         ethers.constants.AddressZero, // zero address
                         approverIndex,
-                        nonce,
                         sig
                     )
-                    + "| "
                 )
             )
-        })
-
-        
+        })  
     })
-
-    // describe("", () => {
-    //     it("", async () => { })
-
-    //     it("", async () => { })
-    // })
 })
