@@ -63,7 +63,7 @@ describe("ConsumeMsg", () => {
             // should return true
             expect(
                 console.log(
-                    "      Sending Above as Inputs, It will return |" +
+                    "      Sending Above as Inputs, It will return ... " +
                     await ConsumeMsgContract.VerifySignature(
                         problemSolverAddr,
                         problemNumber,
@@ -72,14 +72,13 @@ describe("ConsumeMsg", () => {
                         approverIndex,
                         sig
                     )
-                    + "| "
                 )
             )
 
             // wrong approverKeyAddr => should return false
             expect(
                 console.log(
-                    "      Converting Approver Address into Zero Address, It will return |" +
+                    "      Converting Approver Address into Zero Address, It will return ... " +
                     await ConsumeMsgContract.VerifySignature(
                         problemSolverAddr,
                         problemNumber,
@@ -88,17 +87,8 @@ describe("ConsumeMsg", () => {
                         approverIndex,
                         sig
                     )
-                    + "| "
                 )
             )
-        })
-
-        
+        })  
     })
-
-    // describe("", () => {
-    //     it("", async () => { })
-
-    //     it("", async () => { })
-    // })
 })

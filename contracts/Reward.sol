@@ -301,12 +301,12 @@ abstract contract ERC721URIStorage is ERC721 {
 contract Reward is ERC721URIStorage {
 
     uint256 private id = 0;
-    uint256 public nowTotal = 100;
+    uint256 public nowTotal = 101;
 
     mapping(address => bool) private owners;
     mapping(address => mapping (uint256 => uint256)) internal SolvingStatus;
 
-    constructor() ERC721("DappChefRewardNFT", "DCR") {
+    constructor() ERC721("DappChefRewardNFTtest#1", "DCR") {
             owners[msg.sender] = true;
     }
 
@@ -369,7 +369,8 @@ contract Reward is ERC721URIStorage {
         return (length, arr);
     }
 
-    function getTokenID (address account, uint _problemNumber) public view returns (uint){
+    function getTokenID (address account, uint _problemNumber) public view returns (uint) {
+        require(SolvingStatus[account][_problemNumber] - 1 > 0, "haven't answered this problem correctly");
         return SolvingStatus[account][_problemNumber] - 1;
     }
 
