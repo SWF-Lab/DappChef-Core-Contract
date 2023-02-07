@@ -357,14 +357,16 @@ contract Reward is ERC721URIStorage {
         }
     }
 
-    function getSolvingStatus(address account) public view returns (uint256[] memory) {
+    function getSolvingStatus(address account) public view returns ( uint256, uint256[] memory) {
         uint256[] memory arr = new uint256[](nowTotal);
-        for (uint i = 0; i < nowTotal; i++) {
+        uint256 length = 0;
+        for (uint256 i = 0; i < nowTotal; i++) {
             if (SolvingStatus[account][i] > 0) {
-                arr[i] = 1;
+                arr[length] = i;
+                length++;
             }
         }
-        return arr;
+        return (length, arr);
     }
 
     function getTokenID (address account, uint _problemNumber) public view returns (uint){
@@ -389,7 +391,7 @@ contract Reward is ERC721URIStorage {
         _setIsAcceptedToTransfer(_transferStatus);
     }
 
-    function setNowTotal(uint256 _nowTotal) public onlyOwner(msg.sender) {
-        nowTotal = _nowTotal;
-    }
+    // function setNowTotal(uint256 _nowTotal) public onlyOwner(msg.sender) {
+    //     nowTotal = _nowTotal;
+    // }
 }
