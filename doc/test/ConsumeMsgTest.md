@@ -1,6 +1,9 @@
 # ConsumeMsgTest
 
-> The ConsumeMsg contract must be tested before any launching version. This test can be improved in the future.
+> The ConsumeMsg contract must be tested before any launching version. 
+
+## Intro
+This test mainly focuses on sending one valid and one invalid data into `verifySignature`, which should return `true` and `false` respectively.
 
 ## Usage
 
@@ -41,4 +44,3 @@ $ hardhat test ./test/ConsumeMsg.ts
 > 1. The main API Function of Back-End Signing Server
 > 2. The Mock-Signature of Smart Contract VerifySignature Testing
 > 3. Just using it to sign some msg.
-
