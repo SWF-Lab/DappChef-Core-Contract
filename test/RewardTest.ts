@@ -30,6 +30,7 @@ describe("RewardUniTest", () => {
   let approverKeyAddr: string;
   let approverIndex: number;
   let signature: any;
+  let id: number = 0;
 
   before(async () => {
     RewardContract = await ethers.getContractFactory("Reward");
@@ -79,7 +80,8 @@ describe("RewardUniTest", () => {
 
   // Solver mints a Token
   it("mint(): should succuessfully mint and emit a Transfer event", async () => {
-    expect( 
+    // expect()
+    const tx = 
       await solverContract.mint(
         solverAddr,
         problemNumber,
@@ -88,15 +90,23 @@ describe("RewardUniTest", () => {
         approverIndex,
         signature,
         "tokenURI_0"
-      ));
-
+      )  
+    const receipt = await tx.wait();
+    const ownerOfCurrentId = await solverContract.ownerOf(id);
+    
+    expect( ownerOfCurrentId ).to.equal(solverAddr);
+    expect( receipt.events[0].event ).to.equal("Transfer");
   })
 
-  // Solver wants to transfer a token, yet will be banned.
-  // it("transfer(): should revert", async () => {
-  //   const 
-  //   await solverContract.transfer(
-
-  //   )
-  // })
+  // if Solver wants to transfer a token, yet will be banned.
+  it("transferFrom(): should revert", async () => {
+    const ownerOfCurrentId = await rewardContract.ownerOf(id);
+    console.log(ownerOfCurrentId);
+    
+    // await solverContract.transferFrom(
+    //   solverAddr,
+    //   deployerAddr,
+    //   0
+    // );
+  })
 })
