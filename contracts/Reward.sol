@@ -171,7 +171,7 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
         require(from == _ownerOf[id], "from != owner");
         require(to != address(0), "transfer to zero address");
         require(_isApprovedOrOwner(from, msg.sender, id), "not authorized");
-        require(!isAcceptedToTransfer, "you cannot transfer your Reward NFT"); // to make NFT untransferable
+        require(isAcceptedToTransfer, "you cannot transfer your Reward NFT"); // to make NFT untransferable
         _balanceOf[from]--;
         _balanceOf[to]++;
         _ownerOf[id] = to;
@@ -238,7 +238,7 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
             _solver,
             _problemNumber,
             _timestamp,
-            _approverKeyAddr,
+            _approverKeyAddr,   
             _approverIndex,
             _signature
         ), "not verified signer");
@@ -307,7 +307,7 @@ contract Reward is ERC721URIStorage {
     mapping(address => mapping (uint256 => uint256)) internal SolvingStatus;
 
     constructor() ERC721("DappChefRewardNFTtest#1", "DCR") {
-            owners[msg.sender] = true;
+        owners[msg.sender] = true;
     }
 
     modifier onlyOwner(address msgSender) {
@@ -331,6 +331,7 @@ contract Reward is ERC721URIStorage {
         id += 1;
     }
 
+    // should be deleted in the future
     function mintInBatch(
         address[] memory _solver,
         uint256[] memory _problemNumber,
