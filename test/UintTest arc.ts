@@ -1,80 +1,55 @@
 import { expect } from 'chai';
 import { ethers } from 'hardhat';
-import { Contract } from "ethers";
 
 const UnitTest = async () => {  
 
-  let RewardContract: any;
-  let rewardContract: any;
-  let solverContract: Contract;
-
-
-
   context("ERC721 behavior", () => {
-    beforeEach(() => {
-      //deploy contract
-    })
-
     describe("mint", async () => {  
-        it("", () => {
-          //mint token
-        })
+        //deploy contract
+        //mint token
     })
   
     context("token minted", async() => {
-      beforeEach(() => {
+      before(() => {
+        //deploy contract
         //mint token
       })
       describe("balanceOf", () => {
-        it("", () => {
-          //balanceOf()          
-        })
+        //balanceOf()
       })
       describe("ownerOf", () => {
-        it("", () => {
-          //ownerOf()          
-        })
+        //ownerOf()
       })
       describe("transfer", async () => {
+        beforeEach(() => {
+          //mint token
+        })
         describe("via transferFrom", async () => {
-          it("", () => {
-
-          })
+          
         })
         describe("via safeTransferFrom", async () => {
-          it("", () => {
-
-          })
+      
         })
         describe("via safeTransferFrom (with data)", async() => {
-          it("", () => {
-
-          })
+      
         })
       })
       describe("approve", async () => {
-        it("", () => {
-          //approve()
-          //can transferFrom
-        })
+        //approve()
+        //can transferFrom
       })
       describe("getApproved", async () => {
-        it("", () => {
-          //getApproved()
-          //can transferFrom
-        })
+        //getApproved()
+        //can transferFrom
       })
       describe("setApprovalForAll", async () => {
-        it("isApprovedForAll", () => {
-          //setApprovalForAll()
-        })
+        //setApprovalForAll()
+        it("isApprovedForAll")
       })
     
       describe("burn", async () => {
-        it("should burn", () => {
-          //burn
-          //ownerOf
-        })
+        //burn
+        //ownerOf
       })
     })
   })
