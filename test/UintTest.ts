@@ -313,16 +313,6 @@ describe("UnitTest",() => {
           });
         };
 
-        const itEmitsApprovalEvent = function (address: string) {
-          // it('emits an approval event', async function () {
-          //   expectEvent(receipt, 'Approval', {
-          //     owner: owner,
-          //     approved: address,
-          //     tokenId: tokenId,
-          //   });
-          // });
-        };
-
         context('when clearing approval', function () {
 
           context('when there was no prior approval', function () {
@@ -469,24 +459,18 @@ describe("UnitTest",() => {
           });
 
           context('when the operator was already approved', function () {
-            beforeEach(async function () {
-              await solverContract.setApprovalForAll(operatorAddr, true);
-            });
   
             it('keeps the approval to the given address', async function () {
+              await solverContract.setApprovalForAll(operatorAddr, true);
               await solverContract.setApprovalForAll(operatorAddr, true);
   
               expect(await rewardContract.isApprovedForAll(solverAddr, operatorAddr)).to.equal(true);
             });
   
             it('emits an approval event', async function () {
-              // const receipt = await this.token.setApprovalForAll(operator, true, { from: owner });
-  
-              // expectEvent(receipt, 'ApprovalForAll', {
-              //   owner: owner,
-              //   operator: operator,
-              //   approved: true,
-              // });
+              await expect(await solverContract.setApprovalForAll(operatorAddr, true))
+              .to.emit(solverContract, "ApprovalForAll")
+              .withArgs(solverAddr, operatorAddr, true)
             });
           });
 
@@ -537,21 +521,22 @@ describe("UnitTest",() => {
         });
 
         context('with burnt token', function () {
-          beforeEach(async function () { 
-            let receipt = await solverContract.burn(firstMintId);
-          });
+
   
-          it('emits a Transfer event', function () {
-            //event
-            // expectEvent(this.receipt, 'Transfer', { from: owner, to: ZERO_ADDRESS, tokenId: firstTokenId });
+          it('emits a Transfer event', async () => {
+            await expect(await solverContract.burn(firstMintId))
+            .to.emit(solverContract,'Transfer')
+            .withArgs(solverAddr, ZERO_ADDR, firstMintId)
           });
   
           it('deletes the token', async function () {
+            await solverContract.burn(firstMintId);
             expect(await rewardContract.balanceOf(solverAddr)).to.be.equal(0);
             await expect(rewardContract.ownerOf(firstMintId)).to.be.revertedWith('token doesn\'t exist')
           });
   
           it('reverts when burning a token id that has been deleted', async function () {
+            await solverContract.burn(firstMintId);
             await expect(solverContract.burn(firstMintId)).to.be.revertedWith('token doesn\'t exist');
           });
         });
