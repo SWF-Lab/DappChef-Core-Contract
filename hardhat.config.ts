@@ -1,6 +1,7 @@
 import "@nomiclabs/hardhat-waffle"
 import "@nomiclabs/hardhat-ethers"
 import "tsconfig-paths/register"
+import "@nomicfoundation/hardhat-chai-matchers"
 
 import dotenv from "dotenv"
 dotenv.config()

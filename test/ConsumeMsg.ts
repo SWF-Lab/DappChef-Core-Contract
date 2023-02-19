@@ -3,7 +3,7 @@ import { ethers } from "hardhat"
 import { Contract } from "ethers";
 
 // to get approver index
-const checkApproverIndex = (address) => {
+const checkApproverIndex = (address: any) => {
     if (address === process.env.SERVER_KEY_ADDR) return 0;
     else if (address === process.env.CHEF_KEY_ADDR) return 1;
     else if (address === process.env.LAB_KEY_ADDR) return 2;
