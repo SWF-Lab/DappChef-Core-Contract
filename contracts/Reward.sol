@@ -137,16 +137,19 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
     }
 
     function setApprovalForAll(address operator, bool approved) external {
+        require(operator != msg.sender, "approve to owner");
         isApprovedForAll[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }
 
     function approve(address spender, uint256 id) external {
         address owner = _ownerOf[id];
+        require(owner != address(0), "token not exist");
         require(
             msg.sender == owner || isApprovedForAll[owner][msg.sender],
             "not authorized"
         );
+        require(owner != spender, "approve to owner");
 
         _approvals[id] = spender;
 
@@ -176,7 +179,7 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
         require(from == _ownerOf[id], "from != owner");
         require(to != address(0), "transfer to zero address");
         require(_isApprovedOrOwner(from, msg.sender, id), "not authorized");
-        require(!isAcceptedToTransfer, "you cannot transfer your Reward NFT"); // to make NFT untransferable
+        require(isAcceptedToTransfer, "you cannot transfer your Reward NFT"); // to make NFT untransferable
         _balanceOf[from]--;
         _balanceOf[to]++;
         _ownerOf[id] = to;
@@ -412,7 +415,8 @@ contract Reward is ERC721URIStorage {
     }
 
     function burn(uint256 _id) external {
-        require(msg.sender == _ownerOf[id], "not owner");
+        require(_ownerOf[_id] != address(0), "token doesn't exist");
+        require(msg.sender == _ownerOf[_id], "not owner");
         _burn(_id);
     }
 
