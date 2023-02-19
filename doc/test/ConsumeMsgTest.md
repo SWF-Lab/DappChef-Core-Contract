@@ -4,6 +4,13 @@
 
 ## Intro
 This test mainly focuses on sending one valid and one invalid data into `verifySignature`, which should return `true` and `false` respectively.
+## Unitest
+There is only an unitest in `ConsumeMsgTest.ts` to check if every function in `ConsumeMsg.sol` works correctly.
+- `getMessageHash()`: returns a hash value of aligned elements.
+- `getEthSignedMessageHash()`: returns a hash value with the prefix and input hash.
+- `splitSignature()`: split signature into bytes32, bytes32 and an uint8.
+- `recoverSigner()`: recover the signer from EthSignedMsg and Signature.
+- `VerifySignature()`: Verify the correct signer. 
 
 ## Usage
 
@@ -17,30 +24,18 @@ This test mainly focuses on sending one valid and one invalid data into `verifyS
 $ yarn test-consumeMsg
 >
 yarn run v1.22.19
-$ hardhat test ./test/ConsumeMsg.ts
+$ hardhat test ./test/ConsumeMsgTest.ts
 
 
-  ConsumeMsg
-    verifySignature
-      Solver and Signer Infomation:
-      - solver:           0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba
-      - problem number:   997
-      - timestamp:        1673070083
-      - approver address: 0xd8538ea74825080c0c80B9B175f57e91Ff885Cb4
-      - approver index:   3
-      - signature:        0xec90a77a85582bebb215c302717453a970a1c0149671ff8536d6b9b11303faae3d222c4cdb519e54ca2295223cb0c4668264fcc2c3b92383342f21dcca7bab651c
-
-      Sending Above as Inputs, It will return ... true
-      Converting Approver Address into Zero Address, It will return ... false
-      ✔ should verify signature (970ms)
+  ConsumeMsg: Unitest
+    ✔ should correctly get messageHash
+    ✔ should correctly get EthSignedMessageHash
+    ✔ should correctly split signature
+    ✔ should recover correct signer
+    ✔ should correctly verifySignature
 
 
-  1 passing (973ms)
+  5 passing (985ms)
 
-✨  Done in 1.50s.
+✨  Done in 1.62s.
 ```
-
-> Signing Script could use for three main way:
-> 1. The main API Function of Back-End Signing Server
-> 2. The Mock-Signature of Smart Contract VerifySignature Testing
-> 3. Just using it to sign some msg.

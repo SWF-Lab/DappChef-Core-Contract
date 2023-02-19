@@ -59,10 +59,6 @@ contract ConsumeMsg {
             );
     }
 
-    function getHash(uint _input) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(_input));
-    }
-
     function VerifySignature(
         address _solver,
         uint256 _problemNumber,
