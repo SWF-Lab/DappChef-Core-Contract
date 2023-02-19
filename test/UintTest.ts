@@ -269,15 +269,16 @@ describe("UnitTest",() => {
           })
           describe("via safeTransferFrom", async () => {
             it("should revert", async () => {
-              await expect(solverContract.safeTransferFrom(solverAddr, receiverAddr, tokenId))
+              await expect(solverContract['safeTransferFrom(address,address,uint256)'](solverAddr, receiverAddr, tokenId))
               .to.be.revertedWith("you cannot transfer your Reward NFT")
             })
           })
           describe("via safeTransferFrom (with data)", async() => {
             it("should revert", async () => {
-              await expect(solverContract.safeTransferFrom(solverAddr, receiverAddr, tokenId, data))
+              await expect(solverContract['safeTransferFrom(address,address,uint256,bytes)'](solverAddr, receiverAddr, tokenId, data))
               .to.be.revertedWith("you cannot transfer your Reward NFT")
             })
+            
           })
         })
 
