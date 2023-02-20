@@ -132,16 +132,19 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
     }
 
     function setApprovalForAll(address operator, bool approved) external {
+        require(operator != msg.sender, "approve to owner");
         isApprovedForAll[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }
 
     function approve(address spender, uint256 id) external {
         address owner = _ownerOf[id];
+        require(owner != address(0), "token not exist");
         require(
             msg.sender == owner || isApprovedForAll[owner][msg.sender],
             "not authorized"
         );
+        require(owner != spender, "approve to owner");
 
         _approvals[id] = spender;
 
@@ -171,7 +174,7 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
         require(from == _ownerOf[id], "from != owner");
         require(to != address(0), "transfer to zero address");
         require(_isApprovedOrOwner(from, msg.sender, id), "not authorized");
-        require(!isAcceptedToTransfer, "you cannot transfer your Reward NFT"); // to make NFT untransferable
+        require(isAcceptedToTransfer, "you cannot transfer your Reward NFT"); // to make NFT untransferable
         _balanceOf[from]--;
         _balanceOf[to]++;
         _ownerOf[id] = to;
@@ -331,32 +334,6 @@ contract Reward is ERC721URIStorage {
         id += 1;
     }
 
-    function mintInBatch(
-        address[] memory _solver,
-        uint256[] memory _problemNumber,
-        uint256[] memory _timestamp,
-        address[] memory _approverKeyAddr,
-        uint8[] memory _approverIndex,
-        bytes[] memory _signature,
-        string[] memory _tokenURI
-    ) external {
-        for (uint i = 0; i < _problemNumber.length; i++) {
-            require(SolvingStatus[msg.sender][_problemNumber[i]] == 0, "already minted the same token");
-            _mint(
-                _solver[i],
-                id,
-                _problemNumber[i],
-                _timestamp[i],
-                _approverKeyAddr[i],
-                _approverIndex[i],
-                _signature[i]
-            );
-            _setTokenURI(id, _tokenURI[i]);
-            SolvingStatus[msg.sender][_problemNumber[i]] = id + 1;
-            id += 1;
-        }
-    }
-
     function getSolvingStatus(address account) public view returns ( uint256, uint256[] memory) {
         uint256[] memory arr = new uint256[](nowTotal);
         uint256 length = 0;
@@ -370,12 +347,15 @@ contract Reward is ERC721URIStorage {
     }
 
     function getTokenID (address account, uint _problemNumber) public view returns (uint) {
-        require(SolvingStatus[account][_problemNumber] - 1 >= 0, "haven't answered this problem correctly");
-        return SolvingStatus[account][_problemNumber] - 1;
-    }
+      int256 tmp = int256(SolvingStatus[account][_problemNumber]);
+      require(tmp - 1 >= 0, "haven't answered this problem correctly");
+      require (tmp > 0, "SolvingStatus < 0");
+      return SolvingStatus[account][_problemNumber] - 1;
+    } 
 
     function burn(uint256 _id) external {
-        require(msg.sender == _ownerOf[id], "not owner");
+        require(_ownerOf[_id] != address(0), "token doesn't exist");
+        require(msg.sender == _ownerOf[_id], "not owner");
         _burn(_id);
     }
 
@@ -391,8 +371,4 @@ contract Reward is ERC721URIStorage {
     function setIsAcceptedToTransfer(bool _transferStatus) public onlyOwner(msg.sender){
         _setIsAcceptedToTransfer(_transferStatus);
     }
-
-    // function setNowTotal(uint256 _nowTotal) public onlyOwner(msg.sender) {
-    //     nowTotal = _nowTotal;
-    // }
 }

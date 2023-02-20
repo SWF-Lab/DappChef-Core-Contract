@@ -1,8 +1,9 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
+import { Contract } from "ethers";
 
 // to get approver index
-const checkApproverIndex = (address) => {
+const checkApproverIndex = (address: any) => {
     if (address === process.env.SERVER_KEY_ADDR) return 0;
     else if (address === process.env.CHEF_KEY_ADDR) return 1;
     else if (address === process.env.LAB_KEY_ADDR) return 2;
@@ -12,24 +13,24 @@ const checkApproverIndex = (address) => {
 }
 
 describe("ConsumeMsg", () => {
-    let consumeMsgContract: any
+  let consumeMsgContract: any
 
-    const users: any = []
+  const users: any = []
 
-    before(async () => {
-        
-    })
+  before(async () => {
+      
+  })
 
-    describe("verifySignature", () => {
-        it("should verify signature", async () => {
-            // signer
-            const provider = ethers.provider;
-            const signer = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider);
+  describe("verifySignature", () => {
+      it("should verify signature", async () => {
+          // signer
+          const provider = ethers.provider;
+          const signer = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider);
 
-            // contract deployment
-            const ConsumeMsg = await ethers.getContractFactory("ConsumeMsg");
-            const ConsumeMsgContract = await ConsumeMsg.deploy();
-            await ConsumeMsgContract.deployed();
+          // contract deployment
+          const ConsumeMsg = await ethers.getContractFactory("ConsumeMsg");
+          const ConsumeMsgContract = await ConsumeMsg.deploy();
+          await ConsumeMsgContract.deployed();
 
             // solver info ( data need to be signed)
             const problemSolverAddr = '0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba';
@@ -45,9 +46,8 @@ describe("ConsumeMsg", () => {
                 approverKeyAddr,
                 approverIndex,
             )
-
+            
             const sig = await signer.signMessage(ethers.utils.arrayify(hash));
-            const ethHash = await ConsumeMsgContract.getEthSignedMessageHash(hash);
 
             // logging solver entire signature infomation 
             console.log(`      Solver and Signer Infomation:`);
