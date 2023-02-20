@@ -17,11 +17,11 @@ const getSignature = async (
 }
 
 const getApproverIndex = (address: string) => {
-    if (address === process.env.SERVER_KEY_ADDR) return 0;
-    else if (address === process.env.CHEF_KEY_ADDR) return 1;
-    else if (address === process.env.LAB_KEY_ADDR) return 2;
-    else if (address === process.env.DEV_KEY_1_ADDR) return 3;
-    else if (address === process.env.DEV_KEY_2_ADDR) return 4;
+    if (address === process.env.SERVER_KEY_ADDR as string) return 0;
+    else if (address === process.env.CHEF_KEY_ADDR as string) return 1;
+    else if (address === process.env.LAB_KEY_ADDR as string) return 2;
+    else if (address === process.env.DEV_KEY_1_ADDR as string) return 3;
+    else if (address === process.env.DEV_KEY_2_ADDR as string) return 4;
     else return (-1);
 }
 
@@ -104,9 +104,11 @@ const getCurrentTimestamp = async (provider: any) => {
 }
 
 const getRandomProblemNum = () => {
-  const min = Math.ceil(0);
-  const max = Math.floor(100);
-  return Math.floor(Math.random() * (max - min) + min);
+  const min = Math.ceil(1);
+  const max = Math.floor(9);
+  let result: number = 10;
+  while (result == 10) result = Math.floor(Math.random() * (max - min) + min);
+  return result;
 }
 
 const generateMintingDataForOneProblem = async(
@@ -143,11 +145,11 @@ const generateMintingDataForMultipleProblems = async(
 ) => {
     const problemSolvedTimestamp = await getCurrentTimestamp(provider);
     const approverIndex = getApproverIndex(approverKeyAddr);
-    const problemNum = getRandomProblemNum();
+    const problemNumber = getRandomProblemNum();
     const signature = await getSignature(
         signer,
         problemSolverAddr,
-        problemNum,
+        problemNumber,
         problemSolvedTimestamp,
         approverKeyAddr,
         approverIndex
@@ -155,7 +157,7 @@ const generateMintingDataForMultipleProblems = async(
     
     return {
         problemSolverAddr, 
-        problemNum, 
+        problemNumber, 
         problemSolvedTimestamp, 
         approverKeyAddr, 
         approverIndex, 

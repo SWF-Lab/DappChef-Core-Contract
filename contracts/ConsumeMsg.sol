@@ -1,27 +1,13 @@
 // SPDX-License-Identifier: Apache License
 pragma solidity ^0.8.17;
 
-/* Signature Verification
-
-How to Sign and Verify
-# Signing
-1. Create message to sign
-2. Hash the message
-3. Sign the hash (off chain, keep your private key secret)
-
-# Verify
-1. Recreate hash from the original message
-2. Recover signer from signature and hash
-3. Compare recovered signer to claimed signer
-*/
-
 contract ConsumeMsg {
    address[] signingKey = [
         0x0b88cd9c5B6B73145332316C199a5B3a52415730,
-        0x2b83c71A59b926137D3E1f37EF20394d0495d72d,
         0xdCca4cE55773359E191110Eeb21E0413f770032B,
+        0x189C92f28047c979cA2D17C13e3A12963EB1b8B4,
         0xd8538ea74825080c0c80B9B175f57e91Ff885Cb4,
-        0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec
+        0xf8601B6E1f265De57a691Ff64Ddc5e5f2cad17Ac
     ];
 
     function getMessageHash(
