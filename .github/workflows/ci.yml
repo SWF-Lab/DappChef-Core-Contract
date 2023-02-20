@@ -7,6 +7,9 @@ on:
 
 jobs:
   test:
+    env:
+        ETHEREUM_PRIVATE_KEY: '0x1234'
+        
     runs-on: ubuntu-latest
 
     steps:
@@ -18,6 +21,10 @@ jobs:
 
       - name: Install npm packages
         run: yarn install --frozen-lockfile
+        
+      - name: Process environment variables
+        run: |
+          cp .env.example .env
 
       - name: Compile
         run: |
