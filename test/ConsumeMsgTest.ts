@@ -1,6 +1,6 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
-import { checkApproverIndex, getMsgHash, getEthMsgHash, getSignature } from "./utils";
+import utils from "./utils";
 
 describe("ConsumeMsg: Unitest", () => {
     let provider: any;
@@ -8,7 +8,7 @@ describe("ConsumeMsg: Unitest", () => {
     let consumeMsgContract: any;
     let ConsumeMsgContract: any;
     let problemSolverAddr: string;
-    let problemNumber: string;
+    let problemNumber: number;
     let problemSolvedTimestamp: number;
     let approverKeyAddr: string;
     let approverIndex: number;
@@ -25,10 +25,10 @@ describe("ConsumeMsg: Unitest", () => {
 
         // solver info ( data need to be signed)
         problemSolverAddr = '0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba';
-        problemNumber = '997';
+        problemNumber = 997;
         problemSolvedTimestamp = 1673070083;
         approverKeyAddr = signer.address;
-        approverIndex = checkApproverIndex(signer.address);
+        approverIndex = utils.getApproverIndex(signer.address);
     })
     
 
@@ -42,7 +42,7 @@ describe("ConsumeMsg: Unitest", () => {
                 approverIndex
             )
         ).to.equal(
-            getMsgHash(
+            utils.getMsgHash(
                 problemSolverAddr, 
                 problemNumber,
                 problemSolvedTimestamp,
@@ -63,7 +63,7 @@ describe("ConsumeMsg: Unitest", () => {
         expect(
             await consumeMsgContract.getEthSignedMessageHash(msgHash)
         ).to.equal(
-            getEthMsgHash(
+            utils.getEthMsgHash(
                 problemSolverAddr, 
                 problemNumber,
                 problemSolvedTimestamp,
@@ -74,7 +74,7 @@ describe("ConsumeMsg: Unitest", () => {
     });
 
     it("should correctly split signature", async () => {
-        const sig = await getSignature(
+        const sig = await utils.getSignature(
             signer,
             problemSolverAddr, 
             problemNumber,
@@ -82,10 +82,7 @@ describe("ConsumeMsg: Unitest", () => {
             approverKeyAddr,
             approverIndex
         )
-        const r = sig.substring(0, 66);
-        const s = "0x" + sig.substring(66, 130);
-        const rawV = sig.substring(130, 132); // last two hex
-        const v = parseInt(rawV, 16);
+        const {r, s, v} = ethers.utils.splitSignature(sig);
 
         const split = await consumeMsgContract.splitSignature(sig)
         expect(split[0]).to.equal(r);
@@ -103,7 +100,7 @@ describe("ConsumeMsg: Unitest", () => {
         );
         const ethMsgHash = await consumeMsgContract.getEthSignedMessageHash(msgHash);
 
-        const sig = await getSignature(
+        const sig = await utils.getSignature(
             signer,
             problemSolverAddr, 
             problemNumber,
@@ -121,7 +118,7 @@ describe("ConsumeMsg: Unitest", () => {
     });
 
     it("should correctly verifySignature", async () => {
-        const sig = getSignature(
+        const sig = utils.getSignature(
             signer,
             problemSolverAddr, 
             problemNumber,

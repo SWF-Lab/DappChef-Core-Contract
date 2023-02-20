@@ -8,12 +8,12 @@
     "compile": "hardhat compile",
     "deploy": "yarn compile && hardhat deploy",
     "test": "hardhat test",
-    "test-consumeMsg": "hardhat test ./test/ConsumeMsg.ts",
-    "test-reward": "hardhat test ./test/Reward.ts",
+    "test-consumeMsg": "hardhat test ./test/ConsumeMsgTest.ts",
+    "test-reward": "hardhat test ./test/RewardTest.ts",
     "execute": "node -r ts-node/register -r tsconfig-paths/register hardhatRunWithArgs.ts"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-chai-matchers": "^1.0.5",
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomiclabs/hardhat-ethers": "^2.2.1",
     "@typechain/ethers-v5": "^10.0.0",
     "@typechain/hardhat": "^6.0.0",

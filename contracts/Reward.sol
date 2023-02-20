@@ -301,17 +301,20 @@ abstract contract ERC721URIStorage is ERC721 {
 contract Reward is ERC721URIStorage {
 
     uint256 private id = 0;
-    uint256 public nowTotal = 101;
+    uint256 private nowTotal = 101;
 
     mapping(address => bool) private owners;
     mapping(address => mapping (uint256 => uint256)) internal SolvingStatus;
+
+    event SetOwner(address, address);
+    event TransferStatus(address, bool); 
 
     constructor() ERC721("DappChefRewardNFTtest#1", "DCR") {
         owners[msg.sender] = true;
     }
 
     modifier onlyOwner(address msgSender) {
-        require(owners[msgSender] == true, "not contract owner");
+        require(owners[msgSender] == true, "not contract owners");
         _;
     }
 
@@ -376,7 +379,7 @@ contract Reward is ERC721URIStorage {
     }
 
     function burn(uint256 _id) external {
-        require(msg.sender == _ownerOf[id], "not owner");
+        require(msg.sender == _ownerOf[_id], "burn: not owner");
         _burn(_id);
     }
 
@@ -385,15 +388,21 @@ contract Reward is ERC721URIStorage {
     }
     
     // only owners can execute the functions below 
-    function setOwner(address _owner) public onlyOwner(msg.sender){
+    function setOwner(address _owner) public onlyOwner(msg.sender) {
         owners[_owner] = true;
+        emit SetOwner(msg.sender, _owner);
     }
 
-    function setIsAcceptedToTransfer(bool _transferStatus) public onlyOwner(msg.sender){
+    function setIsAcceptedToTransfer(bool _transferStatus) public onlyOwner(msg.sender) {
         _setIsAcceptedToTransfer(_transferStatus);
+        emit TransferStatus(msg.sender, _transferStatus);
     }
 
-    // function setNowTotal(uint256 _nowTotal) public onlyOwner(msg.sender) {
-    //     nowTotal = _nowTotal;
-    // }
+    function getNowTotal() public view onlyOwner(msg.sender) returns (uint256) {
+        return nowTotal;
+    }
+
+    function setNowTotal(uint256 _nowTotal) public onlyOwner(msg.sender) {
+        nowTotal = _nowTotal;
+    }
 }
