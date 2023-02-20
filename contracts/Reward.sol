@@ -372,11 +372,17 @@ contract Reward is ERC721URIStorage {
         return (length, arr);
     }
 
-
     function getTokenID (address account, uint _problemNumber) public view returns (uint) {
-        require(SolvingStatus[account][_problemNumber] - 1 >= 0, "haven't answered this problem correctly");
-        return SolvingStatus[account][_problemNumber] - 1 ;
-    }
+      int256 tmp = int256(SolvingStatus[account][_problemNumber]);
+      require(tmp - 1 >= 0, "haven't answered this problem correctly");
+      require (tmp > 0, "SolvingStatus < 0");
+      return SolvingStatus[account][_problemNumber] - 1;
+    } 
+
+    // function getTokenID (address account, uint _problemNumber) public view returns (uint) {
+    //     require(SolvingStatus[account][_problemNumber] - 1 >= 0, "haven't answered this problem correctly");
+    //     return SolvingStatus[account][_problemNumber] - 1 ;
+    // }
 
     function burn(uint256 _id) external {
         require(_ownerOf[_id] != address(0), "token doesn't exist");
