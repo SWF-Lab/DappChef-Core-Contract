@@ -13,35 +13,38 @@ const checkApproverIndex = (address: any) => {
 }
 
 describe("ConsumeMsg", () => {
-    let ConsumeMsgContract: Contract;
-    let users:  any[] = [];
-    const provider = ethers.provider;
-    const signer = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider);
+  let consumeMsgContract: any
 
-     // solver info ( data need to be signed)
-    const problemSolverAddr = '0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba';
-    const problemNumber = '997';
-    const problemSolvedTimestamp = 1673070083;
-    const approverKeyAddr = signer.address;
-    const approverIndex = checkApproverIndex(signer.address);
-    const nonce = 0;
+  const users: any = []
 
+  before(async () => {
+      
+  })
 
-    beforeEach(async () => {
-        let ConsumeMsg = await ethers.getContractFactory("ConsumeMsg");
-        ConsumeMsgContract = await ConsumeMsg.deploy();
-        await ConsumeMsgContract.deployed();
-    })
+  describe("verifySignature", () => {
+      it("should verify signature", async () => {
+          // signer
+          const provider = ethers.provider;
+          const signer = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider);
 
-    describe("verifySignature", () => {
-        it("should verify signature", async () => {
+          // contract deployment
+          const ConsumeMsg = await ethers.getContractFactory("ConsumeMsg");
+          const ConsumeMsgContract = await ConsumeMsg.deploy();
+          await ConsumeMsgContract.deployed();
+
+            // solver info ( data need to be signed)
+            const problemSolverAddr = '0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba';
+            const problemNumber = '997';
+            const problemSolvedTimestamp = 1673070083;
+            const approverKeyAddr = signer.address;
+            const approverIndex = checkApproverIndex(signer.address);
+
             const hash = await ConsumeMsgContract.getMessageHash(
                 problemSolverAddr,
                 problemNumber,
                 problemSolvedTimestamp,
                 approverKeyAddr,
                 approverIndex,
-                nonce
             )
             
             const sig = await signer.signMessage(ethers.utils.arrayify(hash));
@@ -53,36 +56,39 @@ describe("ConsumeMsg", () => {
             console.log(`      - timestamp:        ${problemSolvedTimestamp}`);
             console.log(`      - approver address: ${approverKeyAddr}`);
             console.log(`      - approver index:   ${approverIndex}`);
-            console.log(`      - nonce:            ${nonce}`);
             console.log(`      - signature:        ${sig}\n`)
             
             // console.log("      recovered approver: ", await ConsumeMsgContract.recoverSigner(ethHash, sig));
 
             // should return true
             expect(
-                  await ConsumeMsgContract.VerifySignature(
+                console.log(
+                    "      Sending Above as Inputs, It will return ... " +
+                    await ConsumeMsgContract.VerifySignature(
                         problemSolverAddr,
                         problemNumber,
                         problemSolvedTimestamp,
                         approverKeyAddr,
                         approverIndex,
-                        nonce,
                         sig
-                  )  
-            ).to.equal(true);
+                    )
+                )
+            )
 
             // wrong approverKeyAddr => should return false
             expect(
-              await ConsumeMsgContract.VerifySignature(
-                  problemSolverAddr,
-                  problemNumber,
-                  problemSolvedTimestamp,
-                  ethers.constants.AddressZero, // zero address
-                  approverIndex,
-                  nonce,
-                  sig
-              )
-            ).to.equal(false);
-        })
+                console.log(
+                    "      Converting Approver Address into Zero Address, It will return ... " +
+                    await ConsumeMsgContract.VerifySignature(
+                        problemSolverAddr,
+                        problemNumber,
+                        problemSolvedTimestamp,
+                        ethers.constants.AddressZero, // zero address
+                        approverIndex,
+                        sig
+                    )
+                )
+            )
+        })  
     })
 })

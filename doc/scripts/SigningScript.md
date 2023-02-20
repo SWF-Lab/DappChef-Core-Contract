@@ -4,25 +4,31 @@
 
 ## Usage
 
-1. `$ yarn execute scripts/Signing.ts
+1. `$ yarn execute scripts/Signing.ts`
 1. Check the log information is correct.
 
 ```bash
 $ yarn execute scripts/Signing.ts
 >
-yarn run v1.22.18
+yarn run v1.22.19
 $ node -r ts-node/register -r tsconfig-paths/register hardhatRunWithArgs.ts scripts/Signing.ts
-Signer Key Address: 0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec
+Signer Key Address: 0xd8538ea74825080c0c80B9B175f57e91Ff885Cb4
     - Problem Solver Address  : 0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba
     - Problem Number is       : 997
     - Problem Solved Timestamp: 1673070083
-    - Signature Approver Key  : 0xB42faBF7BCAE8bc5E368716B568a6f8Fdf3F84ec
+    - Signature Approver Key  : 0xd8538ea74825080c0c80B9B175f57e91Ff885Cb4
+    - Signature Approver Index: 3
 
-Signing Hash: 0xfc27d62914c7b824a0c526c1b23fa720d8e7ae5d65895f66266bfacf4c8e5bee
-Signature: 0xe87dc483dc4169c103a74127743778767a5802281958c163f4232d9cd46f0bf72fe194c0e0b4425fb7c4c203839c7c98d14eed02d214c5239e55836540915aa81c
+getMessageHash: 0x6e06c902019533c0bfdfea500145e9be71be87b8e3d9d4ba0427d08d00d38eea
+getEthSignedMessageHash: 0x22d97879a6ba578b27d7f35f19ef2659484e411f3b06aec649a32efd1810713d
+Signature: 0xec90a77a85582bebb215c302717453a970a1c0149671ff8536d6b9b11303faae3d222c4cdb519e54ca2295223cb0c4668264fcc2c3b92383342f21dcca7bab651c
 
-Check the Signature is Valid...Invalid!
-Done in 4.42s.
+recoverSigner(0x22d97879a6ba578b27d7f35f19ef2659484e411f3b06aec649a32efd1810713d,0xec90a77a85582bebb215c302717453a970a1c0149671ff8536d6b9b11303faae3d222c4cdb519e54ca2295223cb0c4668264fcc2c3b92383342f21dcca7bab651c)
+
+VerifySignature(0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba,997,1673070083,0xd8538ea74825080c0c80B9B175f57e91Ff885Cb4,0xec90a77a85582bebb215c302717453a970a1c0149671ff8536d6b9b11303faae3d222c4cdb519e54ca2295223cb0c4668264fcc2c3b92383342f21dcca7bab651c)
+
+Check the Signature is...Approved!
+✨  Done in 3.44s.
 ```
 
 > Signing Script could use for three main way:
