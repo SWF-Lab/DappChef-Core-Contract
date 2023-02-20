@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     env:
-        ETHEREUM_PRIVATE_KEY: '0x1234'
+        ETHEREUM_PRIVATE_KEY: 'ac7b706a4cd6f115e8b84715948fc48a07ffa5d5af405eba6c9c851c0d943f49'
         
     runs-on: ubuntu-latest
 
