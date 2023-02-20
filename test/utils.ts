@@ -105,7 +105,7 @@ const getCurrentTimestamp = async (provider: any) => {
 
 const getRandomProblemNum = () => {
   const min = Math.ceil(1);
-  const max = Math.floor(9);
+  const max = Math.floor(100);
   let result: number = 10;
   while (result == 10) result = Math.floor(Math.random() * (max - min) + min);
   return result;
