@@ -28,7 +28,7 @@ jobs:
 
       - name: Compile
         run: |
-          yarn run compile
+          yarn compile
 
       - name: Run tests
         run: yarn test
