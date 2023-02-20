@@ -1,6 +1,4 @@
 import { ethers } from "hardhat";
-import { network } from "hardhat";
-import { expect } from "chai";
 
 const getSignature = async (
     signer: any,
@@ -13,7 +11,7 @@ const getSignature = async (
     // Sign the Msg
     const messageHash = ethers.utils.solidityKeccak256(["address", "uint256", "uint256", "address", "uint8"],
         [problemSolverAddr, problemNumber, problemSolvedTimestamp, approverKeyAddr, approverIndex])
-    const signature = await signer.signMessage(ethers.utils.arrayify(messageHash))
+    const signature = await signer.signMessage(ethers.utils.arrayify(messageHash));
 
     return signature;
 }
@@ -59,23 +57,44 @@ const getEthMsgHash = (
     return signingHash;
 }
 
-const setupProviderAndAccount = async () => {
+const deploy = async () => {
     let provider: any;
 
-    if (network.name === "hardhat" || network.name === "localhost") provider = ethers.provider;
-    // else provider = new ethers.providers.JsonRpcProvider(network.config);
+    provider = ethers.provider;
+    const RewardContract = await ethers.getContractFactory("Reward");
+    //deploy the contract
+    const rewardContract = await RewardContract.deploy();
+    await rewardContract.deployed();
 
-    const signer = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider); // signer in backend
+    const approver = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider); // signer in backend
 
     const signers = await ethers.getSigners();
-    const deployer = signers[0]; // deployer
-    const owner = signers[1] // an owner that will be added in the owners group
-    const solver1 = signers[2]; // solver
-    const solver2 = signers[3];
-    const solver3 = signers[4];
-    const solver4 = signers[5]
+    const deployerAddr = signers[0].address; // deployer
+    const ownerAddr = signers[1].address // an owner that will be added in the owners group
+    const receiverAddr = signers[2].address;
+    const nobodyAddr = signers[3].address;
+    const operatorAddr = signers[4].address;
+    const solver1Addr = signers[5].address; // solver
+    const solver2Addr = signers[6].address;
+    const solver3Addr = signers[7].address;
+    const solver4Addr = signers[8].address;
 
-    return [provider, signer, deployer, owner, solver1, solver2, solver3, solver4];
+    const deployerContract = rewardContract.connect(deployerAddr);
+    const ownerContract = rewardContract.connect(ownerAddr);
+    const receiverContract = rewardContract.connect(receiverAddr);
+    const nobodyContract = rewardContract.connect(nobodyAddr);
+    const operatorContract = rewardContract.connect(operatorAddr);
+    const solver1Contract = rewardContract.connect(solver1Addr);
+    const solver2Contract = rewardContract.connect(solver2Addr);
+    const solver3Contract = rewardContract.connect(solver3Addr);
+    const solver4Contract = rewardContract.connect(solver4Addr)
+    
+    return [
+        provider, approver, 
+        deployerAddr, ownerAddr, solver1Addr, solver2Addr, solver3Addr, solver4Addr,
+        deployerContract, ownerContract, 
+        solver1Contract, solver2Contract, solver3Contract, solver4Contract
+    ];
 }
 
 const getCurrentTimestamp = async (provider: any) => {
@@ -98,17 +117,17 @@ const generateMintingDataForOneProblem = async(
 ) => {
     const problemSolvedTimestamp = await getCurrentTimestamp(provider);
     const approverIndex = getApproverIndex(approverKeyAddr);
-    const problemNum = 10;
+    const problemNumber = 10;
     const signature = await getSignature(
         signer,
         problemSolverAddr,
-        problemNum,
+        problemNumber,
         problemSolvedTimestamp,
         approverKeyAddr,
         approverIndex);
     return {
         problemSolverAddr, 
-        problemNum, 
+        problemNumber, 
         problemSolvedTimestamp, 
         approverKeyAddr, 
         approverIndex, 
@@ -131,7 +150,9 @@ const generateMintingDataForMultipleProblems = async(
         problemNum,
         problemSolvedTimestamp,
         approverKeyAddr,
-        approverIndex);
+        approverIndex
+        );
+    
     return {
         problemSolverAddr, 
         problemNum, 
@@ -143,52 +164,18 @@ const generateMintingDataForMultipleProblems = async(
 }
 
 const generateTokenUri = (id: number) => {
-    return `http://<IPFS_prefix>/TOKEN#${id}`
+    return `ipfs://<IPFS_prefix>/${id}.json`
 }
 
-const checkAfterTransfer = async (
-    signersIndex: number,
-    rewardContract: any,
-    id: number,
-    address: string,
-    solvingStatus: any,
-) => {
-    // balance
-    expect( await rewardContract.balanceOf(address)).to.equal(1);
 
-    // ownerOf
-    expect( await rewardContract.ownerOf(id)).to.equal(address);
-
-    // check tokenUri
-    expect( await rewardContract.tokenURI(id)).to.equal(generateTokenUri(id));
-
-    // check SolvingStatus
-    const SolvingStatus = await rewardContract.getSolvingStatus(address);   
-    const length = parseInt(SolvingStatus[0]._hex, 16);
-    let solver: any;
-    if (signersIndex == 0) solver = solvingStatus.deployer;
-    else if (signersIndex == 1) solver = solvingStatus.owner;
-    else if (signersIndex == 2) solver = solvingStatus.solver1;
-    else if (signersIndex == 3) solver = solvingStatus.solver2;
-    else if (signersIndex == 4) solver = solvingStatus.solver3;
-    else if (signersIndex == 5) solver = solvingStatus.solver4;
-    console.log(SolvingStatus[1]);
-    console.log(solver);
-    
-    expect( length ).to.equal(solver.length);
-    for (let i = 0; i < solver.length; i++) {
-      expect( parseInt(SolvingStatus[1][solver[i][0]]._hex, 16) ).to.equal(solver[i][1]);
-    }
-}
 export default{ 
     getSignature, 
     getMsgHash, 
     getEthMsgHash,
     getCurrentTimestamp, 
     getApproverIndex, 
-    setupProviderAndAccount,
+    deploy,
     generateMintingDataForOneProblem,
     generateMintingDataForMultipleProblems,
     generateTokenUri,
-    checkAfterTransfer
 }
