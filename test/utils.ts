@@ -79,20 +79,20 @@ const deploy = async () => {
     const solver3Addr = signers[7].address;
     const solver4Addr = signers[8].address;
 
-    const deployerContract = rewardContract.connect(deployerAddr);
-    const ownerContract = rewardContract.connect(ownerAddr);
-    const receiverContract = rewardContract.connect(receiverAddr);
-    const nobodyContract = rewardContract.connect(nobodyAddr);
-    const operatorContract = rewardContract.connect(operatorAddr);
-    const solver1Contract = rewardContract.connect(solver1Addr);
-    const solver2Contract = rewardContract.connect(solver2Addr);
-    const solver3Contract = rewardContract.connect(solver3Addr);
-    const solver4Contract = rewardContract.connect(solver4Addr)
+    const deployerContract = rewardContract.connect(signers[0]);
+    const ownerContract = rewardContract.connect(signers[1]);
+    const receiverContract = rewardContract.connect(signers[2]);
+    const nobodyContract = rewardContract.connect(signers[3]);
+    const operatorContract = rewardContract.connect(signers[4]);
+    const solver1Contract = rewardContract.connect(signers[5]);
+    const solver2Contract = rewardContract.connect(signers[6]);
+    const solver3Contract = rewardContract.connect(signers[7]);
+    const solver4Contract = rewardContract.connect(signers[8]);
     
     return [
         provider, approver, 
         deployerAddr, ownerAddr, solver1Addr, solver2Addr, solver3Addr, solver4Addr,
-        deployerContract, ownerContract, 
+        deployerContract, ownerContract, receiverContract, nobodyContract, operatorContract,
         solver1Contract, solver2Contract, solver3Contract, solver4Contract
     ];
 }
