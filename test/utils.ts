@@ -90,8 +90,8 @@ const deploy = async () => {
     const solver4Contract = rewardContract.connect(signers[8]);
     
     return [
-        provider, approver, 
-        deployerAddr, ownerAddr, solver1Addr, solver2Addr, solver3Addr, solver4Addr,
+        provider, approver, rewardContract,
+        deployerAddr, ownerAddr, receiverAddr, nobodyAddr, operatorAddr, solver1Addr, solver2Addr, solver3Addr, solver4Addr,
         deployerContract, ownerContract, receiverContract, nobodyContract, operatorContract,
         solver1Contract, solver2Contract, solver3Contract, solver4Contract
     ];
