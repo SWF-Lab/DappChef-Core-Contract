@@ -34,7 +34,7 @@ const provider = ethers.provider;
 const approver = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider)
 
 //for mint
-const problemNumber = 123;
+const problemNumber = 5;
 const timestamp = 1673070083;
 const nonce = 1;
 const approverAddr = approver.address;
@@ -105,7 +105,9 @@ describe("Unit test",() => {
 
       describe("getTokenId", async() => {
         it("should revert", async() => {
-          await expect(await rewardContract.getTokenID(solverAddr, firstMintId)).to.be.revertedWith("haven't answered this problem correctly")
+          await expect(
+            await rewardContract.getTokenID(solverAddr, firstMintId))
+          .to.be.revertedWith("haven't answered this problem correctly")
         })
       })
 
@@ -140,7 +142,7 @@ describe("Unit test",() => {
           returnValue = await rewardContract.getSolvingStatus(solverAddr);
           length = returnValue[0].toString();
           arr = returnValue[1];
-          expect(length).to.be.equal(1);
+          expect(length).to.be.equal('1');
         })
       })
 
