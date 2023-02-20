@@ -52,8 +52,8 @@ const signing = async () => {
   //sign message
   const messageHash = ethers.utils.solidityKeccak256
   (
-    ["address", "uint256", "uint256", "address", "uint8", "uint256"],
-    [solverAddr, problemNumber, timestamp, approverAddr, approverIndex, nonce]
+    ["address", "uint256", "uint256", "address", "uint8"],
+    [solverAddr, problemNumber, timestamp, approverAddr, approverIndex]
   )
   signature = await approver.signMessage(ethers.utils.arrayify(messageHash))
 
@@ -81,7 +81,8 @@ const deploy = async () => {
 
 //===== TEST =======
 
-describe("UnitTest",() => {  
+describe("Reward", () => {
+describe("Unit test",() => {  
 
   context("ERC721 behavior", () => {
     beforeEach(async () => {
@@ -90,15 +91,32 @@ describe("UnitTest",() => {
     })
 
     context("token not minted", async () => {
+      describe("getSolvingStatus", () => {
+        let returnValue: any;
+        let length: number;
+        let arr: number[];
+        it("should get solving status", async() => {
+          returnValue = await rewardContract.getSolvingStatus(solverAddr);
+          length = returnValue[0];
+          arr = returnValue[1];
+          expect(length).to.be.equal(0);
+        })
+      })
+
+      describe("getTokenId", async() => {
+        it("should revert", async() => {
+          await expect(await rewardContract.getTokenID(solverAddr, firstMintId)).to.be.revertedWith("haven't answered this problem correctly")
+        })
+      })
+
       describe("mint", async () => {  
         it("reverts with a null destination address", async () => {
-          await expect(rewardContract.mint(
+          await expect(solverContract.mint(
             ZERO_ADDR, 
             problemNumber, 
             timestamp, 
             approverAddr, 
             approverIndex, 
-            nonce, 
             signature, 
             tokenURI
           )).to.be.revertedWith('mint to zero address')
@@ -110,8 +128,26 @@ describe("UnitTest",() => {
       beforeEach(async () => {
         await solverContract
           .mint(
-          solverAddr, problemNumber, timestamp, approverAddr, approverIndex, nonce, signature, tokenURI
+          solverAddr, problemNumber, timestamp, approverAddr, approverIndex, signature, tokenURI
         )
+      })
+
+      describe("getSolvingStatus", () => {
+        let returnValue: any;
+        let length: number;
+        let arr: number[];
+        it("should get solving status", async() => {
+          returnValue = await rewardContract.getSolvingStatus(solverAddr);
+          length = returnValue[0].toString();
+          arr = returnValue[1];
+          expect(length).to.be.equal(1);
+        })
+      })
+
+      describe("getTokenID", () => {
+        it("should return tokenId", async() => {
+          expect(await rewardContract.getTokenID(solverAddr, firstMintId)).to.be.equal(0);
+        })
       })
 
       describe("balanceOf()", () => {
@@ -158,102 +194,7 @@ describe("UnitTest",() => {
           await solverContract.setApprovalForAll(receiverAddr, true);
         })
 
-        //=====functions=====
-        // const transferWasSuccessful = function ({ solverAddr, tokenId, receiverAddr }) {
-        //   it('transfers the ownership of the given token ID to the given address', async function () {
-        //     expect(await this.rewardContract.ownerOf(tokenId)).to.be.equal(this.toWhom);
-        //   });
-  
-        //   it('clears the approval for the token ID', async function () {
-        //     expect(await this.rewardContract.getApproved(tokenId)).to.be.equal(ZERO_ADDR);
-        //   });
-  
-        //   it('adjusts owners balances', async function () {
-        //     expect(await this.rewardContract.balanceOf(solverAddr)).to.be.equal(1);
-        //   });
-        // };
-  
-        // const shouldTransferTokensByUsers = function (transferFunction: Function) {
-        //   context('when called by the owner', function () {
-        //     beforeEach(async function () {
-        //       receipt = await transferFunction.call(this, solverAddr, this.toWhom, tokenId, { from: solverAddr });
-        //     });
-        //     transferWasSuccessful({ solverAddr, tokenId, receiverAddr });
-        //   });
-  
-        //   context('when called by the approved individual', function () {
-        //     beforeEach(async function () {
-        //       receipt = await transferFunction.call(this, solverAddr, this.toWhom, tokenId, { from: receiverAddr });
-        //     });
-        //     transferWasSuccessful({ solverAddr, tokenId, receiverAddr });
-        //   });
-  
-        //   context('when called by the operator', function () {
-        //     beforeEach(async function () {
-        //       receipt = await transferFunction.call(this, solverAddr, this.toWhom, tokenId, { from: operatorAddr });
-        //     });
-        //     transferWasSuccessful({ solverAddr, tokenId, receiverAddr });
-        //   });
-  
-        //   context('when called by the owner without an approved user', function () {
-        //     beforeEach(async function () {
-        //       await this.rewardContract.approve(ZERO_ADDR, tokenId, { from: solverAddr });
-        //       receipt = await transferFunction.call(this, solverAddr, this.toWhom, tokenId, { from: operatorAddr });
-        //     });
-        //     transferWasSuccessful({ solverAddr, tokenId, receiverAddr });
-        //   });
-  
-        //   context('when sent to the owner', function () {
-        //     beforeEach(async function () {
-        //       receipt = await transferFunction.call(this, solverAddr, solverAddr, tokenId, { from: solverAddr });
-        //     });
-  
-        //     it('keeps ownership of the token', async function () {
-        //       expect(await this.rewardContract.ownerOf(tokenId)).to.be.equal(solverAddr);
-        //     });
-  
-        //     it('clears the approval for the token ID', async function () {
-        //       expect(await this.rewardContract.getApproved(tokenId)).to.be.equal(ZERO_ADDR);
-        //     });
-  
-        //     it('keeps the owner balance', async function () {
-        //       expect(await this.rewardContract.balanceOf(solverAddr)).to.be.equal('2');
-        //     });
-        //   });
-  
-        //   context('when the address of the previous owner is incorrect', function () {
-        //     it('reverts', async function () {
-        //       await expect(
-        //         transferFunction.call(this, nobodyAddr, nobodyAddr, tokenId, { from: solverAddr })
-        //       ).to.be.revertedWith('ERC721: transfer from incorrect owner')
-        //     });
-        //   });
-  
-        //   context('when the sender is not authorized for the token id', function () {
-        //     it('reverts', async function () {
-        //       await expect(
-        //         transferFunction.call(this, solverAddr, nobodyAddr, tokenId, { from: nobodyAddr })
-        //       ).to.be.revertedWith('ERC721: caller is not token owner or approved')
-        //     });
-        //   });
-  
-        //   context('when the given token ID does not exist', function () {
-        //     it('reverts', async function () {
-        //       await expect(
-        //         transferFunction.call(this, solverAddr, nobodyAddr, nonExistTokenId, { from: solverAddr })
-        //       ).to.be.revertedWith('ERC721: invalid token ID')
-        //     });
-        //   });
-  
-        //   context('when the address to transfer the token to is the zero address', function () {
-        //     it('reverts', async function () {
-        //       await expect(
-        //         transferFunction.call(this, solverAddr, ZERO_ADDR, tokenId, { from: solverAddr })
-        //       ).to.be.revertedWith('ERC721: transfer to the zero address')
-        //     });
-        //   });
-        // };
-  
+        
         // ====== test ========
         context("while not allowed to transfer",async () => {
           
@@ -286,26 +227,6 @@ describe("UnitTest",() => {
 
         })
 
-        // context("while allowed to transfer", async () => {
-        //   beforeEach(async () => {
-        //     await deployerContract.setIsAcceptedToTransfer(true); 
-        //   })
-        //   describe("via transferFrom()", async () => {
-        //     shouldTransferTokensByUsers(function (from, to, tokenId, opts) {
-        //       return rewardContract.transferFrom(from, to, tokenId, opts);
-        //     });
-        //   })
-        //   describe("via safeTransferFrom()", async () => {
-        //     it("", () => {
-
-        //     })
-        //   })
-        //   describe("via safeTransferFrom (with data)", async () => {
-        //     it("", () => {
-
-        //     })
-        //   })
-        // })
       })
 
       describe("approve()", async () => {
@@ -430,24 +351,6 @@ describe("UnitTest",() => {
             .to.be.revertedWith('not authorized')
           });
         });
-
-        // context('when the sender is approved for the given token ID', function () {
-        //   it('reverts', async function () {
-        //     await solverContract.approve(receiverAddr, tokenId);
-        //     await expect(receiverContract.approve(nobodyAddr, tokenId))
-        //       .to.be.revertedWith('ERC721: approve caller is not token owner or approved for all')
-        //     });
-        // });
-
-        // context('when the sender is an operator', function () {
-        //   beforeEach(async function () {
-        //     await this.rewardContract.setApprovalForAll(operator, true, { from: owner });
-        //     receipt = await this.rewardContract.approve(approved, tokenId, { from: operator });
-        //   });
-  
-        //   itApproves(approved);
-        //   itEmitsApprovalEvent(approved);
-        // });
 
         context('when the given token ID does not exist', function () {
           it('reverts', async function () {
@@ -624,11 +527,11 @@ describe("UnitTest",() => {
     });
 
     it("has a name", async () => {
-      expect(await rewardContract.name()).to.be.equal("");
+      expect(await rewardContract.name()).to.be.equal("DappChefRewardNFTtest#1");
     });
 
     it("has a symbol", async () => {
-      expect(await rewardContract.symbol()).to.be.equal("");
+      expect(await rewardContract.symbol()).to.be.equal("DCR");
     });
 
     describe("tokenURI", async () => {
@@ -636,7 +539,7 @@ describe("UnitTest",() => {
         //mint
         await signing();
         await solverContract.mint(
-          solverAddr, problemNumber, timestamp, approverAddr, approverIndex, nonce, signature, tokenURI
+          solverAddr, problemNumber, timestamp, approverAddr, approverIndex, signature, tokenURI
         );
         //get tokenURI
         expect(await solverContract.tokenURI(firstMintId)).to.be.equal(tokenURI);
@@ -645,4 +548,4 @@ describe("UnitTest",() => {
   });
 
 });
-
+})
