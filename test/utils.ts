@@ -17,11 +17,11 @@ const getSignature = async (
 }
 
 const getApproverIndex = (address: string) => {
-    if (address === process.env.SERVER_KEY_ADDR) return 0;
-    else if (address === process.env.CHEF_KEY_ADDR) return 1;
-    else if (address === process.env.LAB_KEY_ADDR) return 2;
-    else if (address === process.env.DEV_KEY_1_ADDR) return 3;
-    else if (address === process.env.DEV_KEY_2_ADDR) return 4;
+    if (address === process.env.SERVER_KEY_ADDR as string) return 0;
+    else if (address === process.env.CHEF_KEY_ADDR as string) return 1;
+    else if (address === process.env.LAB_KEY_ADDR as string) return 2;
+    else if (address === process.env.DEV_KEY_1_ADDR as string) return 3;
+    else if (address === process.env.DEV_KEY_2_ADDR as string) return 4;
     else return (-1);
 }
 

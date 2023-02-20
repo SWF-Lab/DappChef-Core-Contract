@@ -87,8 +87,7 @@ describe("Unit test",() => {
 
       describe("getTokenId", async() => {
         it("should revert", async() => {
-          await expect(
-            await rewardContract.getTokenID(solver1Addr, firstMintId))
+          await expect(rewardContract.getTokenID(solver1Addr, problemNumber))
           .to.be.revertedWith("haven't answered this problem correctly")
         })
       })
@@ -126,6 +125,7 @@ describe("Unit test",() => {
           length = returnValue[0].toString();
           arr = returnValue[1];
           expect(length).to.be.equal('1');
+          expect(arr[0]).to.be.equal(5);
         })
       })
 
@@ -139,7 +139,7 @@ describe("Unit test",() => {
             await rewardContract.balanceOf(solver1Addr)
           ).to.be.equal(1);
           
-          expect(await rewardContract.getTokenID(solver1Addr, firstMintId)).to.be.equal(0);
+          expect(await rewardContract.getTokenID(solver1Addr, problemNumber)).to.be.equal(0);
         })
       })
 
