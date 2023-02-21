@@ -1,5 +1,6 @@
 import "@nomiclabs/hardhat-waffle"
 import "@nomiclabs/hardhat-ethers"
+import "@nomicfoundation/hardhat-chai-matchers"
 import "tsconfig-paths/register"
 import "@nomicfoundation/hardhat-chai-matchers"
 

@@ -1,94 +1,137 @@
 import { expect } from "chai"
 import { ethers } from "hardhat"
-import { Contract } from "ethers";
-
-// to get approver index
-const checkApproverIndex = (address: any) => {
-    if (address === process.env.SERVER_KEY_ADDR) return 0;
-    else if (address === process.env.CHEF_KEY_ADDR) return 1;
-    else if (address === process.env.LAB_KEY_ADDR) return 2;
-    else if (address === process.env.DEV_KEY_1_ADDR) return 3;
-    else if (address === process.env.DEV_KEY_2_ADDR) return 4;
-    else return (-1);
-}
+import utils from "./utils";
 
 describe("ConsumeMsg", () => {
-  let consumeMsgContract: any
+  let provider: any;
+  let signer: any;
+  let signers: any;
+  let consumeMsgContract: any;
+  let ConsumeMsgContract: any;
+  let problemSolverAddr: string;
+  let problemNumber: number;
+  let problemSolvedTimestamp: number;
+  let approverKeyAddr: string;
+  let approverIndex: number;
+  let signature: string;
 
-  const users: any = []
+  describe("Unit test",async () => {
+    beforeEach( async () => {
+      // signer
+      provider = ethers.provider;
+      signer = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider);
+      approverKeyAddr = signer.address;
 
-  before(async () => {
+      // contract deployment
+      ConsumeMsgContract = await ethers.getContractFactory("ConsumeMsg");
+      consumeMsgContract = await ConsumeMsgContract.deploy();
+      await consumeMsgContract.deployed();
+
+      // solver info ( data need to be signed)
+      signers = await ethers.getSigners()
+      problemSolverAddr = signers[0].address;
       
-  })
+      const data = await utils.generateMintingDataForOneProblem(
+          provider, signer, problemSolverAddr, approverKeyAddr
+      );
+      problemSolverAddr = data.problemSolverAddr; 
+      problemNumber = data.problemNumber;
+      problemSolvedTimestamp = data.problemSolvedTimestamp; 
+      approverKeyAddr = data.approverKeyAddr; 
+      approverIndex = data.approverIndex; 
+      signature = data.signature;
+      
+    });
+    
+    it("should correctly get messageHash", async () => {
+      expect(
+        await consumeMsgContract.getMessageHash(
+          problemSolverAddr, 
+          problemNumber,
+          problemSolvedTimestamp,
+          approverKeyAddr,
+          approverIndex
+        )
+      ).to.equal(
+        utils.getMsgHash(
+          problemSolverAddr, 
+          problemNumber,
+          problemSolvedTimestamp,
+          approverKeyAddr,
+          approverIndex
+        )
+      );
+    });
+    
+    it("should correctly get EthSignedMessageHash", async () => {
+      const msgHash = await consumeMsgContract.getMessageHash(
+        problemSolverAddr, 
+        problemNumber,
+        problemSolvedTimestamp,
+        approverKeyAddr,
+        approverIndex
+      );
+      expect(
+        await consumeMsgContract.getEthSignedMessageHash(msgHash)
+      ).to.equal(
+        utils.getEthMsgHash(
+          problemSolverAddr, 
+          problemNumber,
+          problemSolvedTimestamp,
+          approverKeyAddr,
+          approverIndex
+        )
+      );
+    });
 
-  describe("verifySignature", () => {
-      it("should verify signature", async () => {
-          // signer
-          const provider = ethers.provider;
-          const signer = new ethers.Wallet(process.env.ETHEREUM_PRIVATE_KEY as any, provider);
+    it("should correctly split signature", async () => {
+        const signature = await utils.getSignature(
+          signer,
+          problemSolverAddr, 
+          problemNumber,
+          problemSolvedTimestamp,
+          approverKeyAddr,
+          approverIndex
+        )
+        const {r, s, v} = ethers.utils.splitSignature(signature);
 
-          // contract deployment
-          const ConsumeMsg = await ethers.getContractFactory("ConsumeMsg");
-          const ConsumeMsgContract = await ConsumeMsg.deploy();
-          await ConsumeMsgContract.deployed();
+        const split = await consumeMsgContract.splitSignature(signature)
+        expect(split[0]).to.equal(r);
+        expect(split[1]).to.equal(s);
+        expect(split[2]).to.equal(v);
+    });
 
-            // solver info ( data need to be signed)
-            const problemSolverAddr = '0xDEcf23CbB14972F2e9f91Ce30515ee955a124Cba';
-            const problemNumber = '997';
-            const problemSolvedTimestamp = 1673070083;
-            const approverKeyAddr = signer.address;
-            const approverIndex = checkApproverIndex(signer.address);
+    it("should recover correct signer", async () => {
+        const msgHash = await consumeMsgContract.getMessageHash(
+          problemSolverAddr, 
+          problemNumber,
+          problemSolvedTimestamp,
+          approverKeyAddr,
+          approverIndex
+        );
+        const ethMsgHash = await consumeMsgContract.getEthSignedMessageHash(msgHash);
+        
+        expect(
+          await consumeMsgContract.recoverSigner(
+            ethMsgHash,
+            signature
+          )
+        ).to.equal(approverKeyAddr);
+    });
 
-            const hash = await ConsumeMsgContract.getMessageHash(
-                problemSolverAddr,
-                problemNumber,
-                problemSolvedTimestamp,
-                approverKeyAddr,
-                approverIndex,
-            )
-            
-            const sig = await signer.signMessage(ethers.utils.arrayify(hash));
+    it("should correctly verifySignature", async () => {
 
-            // logging solver entire signature infomation 
-            console.log(`      Solver and Signer Infomation:`);
-            console.log(`      - solver:           ${problemSolverAddr}`);
-            console.log(`      - problem number:   ${problemNumber}`);
-            console.log(`      - timestamp:        ${problemSolvedTimestamp}`);
-            console.log(`      - approver address: ${approverKeyAddr}`);
-            console.log(`      - approver index:   ${approverIndex}`);
-            console.log(`      - signature:        ${sig}\n`)
-            
-            // console.log("      recovered approver: ", await ConsumeMsgContract.recoverSigner(ethHash, sig));
-
-            // should return true
-            expect(
-                console.log(
-                    "      Sending Above as Inputs, It will return ... " +
-                    await ConsumeMsgContract.VerifySignature(
-                        problemSolverAddr,
-                        problemNumber,
-                        problemSolvedTimestamp,
-                        approverKeyAddr,
-                        approverIndex,
-                        sig
-                    )
-                )
-            )
-
-            // wrong approverKeyAddr => should return false
-            expect(
-                console.log(
-                    "      Converting Approver Address into Zero Address, It will return ... " +
-                    await ConsumeMsgContract.VerifySignature(
-                        problemSolverAddr,
-                        problemNumber,
-                        problemSolvedTimestamp,
-                        ethers.constants.AddressZero, // zero address
-                        approverIndex,
-                        sig
-                    )
-                )
-            )
-        })  
-    })
+      expect(
+        await consumeMsgContract.VerifySignature(
+          problemSolverAddr,
+          problemNumber,
+          problemSolvedTimestamp,
+          approverKeyAddr,
+          approverIndex,
+          signature
+        )
+      ).to.equal(true);
+    });
+});
+    
 })
