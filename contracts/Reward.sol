@@ -316,7 +316,7 @@ contract Reward is ERC721URIStorage {
     event SetOwner(address, address);
     event TransferStatus(address, bool); 
 
-    constructor() ERC721("DappChefRewardNFTtest#1", "DCR") {
+    constructor() ERC721("DappChefRewardNFT", "DCR") {
         owners[msg.sender] = true;
     }
 
