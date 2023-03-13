@@ -226,6 +226,7 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
     }
 
     function _mint(
+        bool _flag,
         address _solver,
         uint256 id,
         uint256 _problemNumber,
@@ -237,14 +238,16 @@ contract ERC721 is IERC721Metadata, ConsumeMsg  {
         require(_solver != address(0), "mint to zero address");
         require(_ownerOf[id] == address(0), "already minted");
         require(msg.sender == _solver, "invalid msg sender");
-        require(VerifySignature(
-            _solver,
-            _problemNumber,
-            _timestamp,
-            _approverKeyAddr,   
-            _approverIndex,
-            _signature
-        ), "not verified signer");
+        if(_flag){
+            require(VerifySignature(
+                _solver,
+                _problemNumber,
+                _timestamp,
+                _approverKeyAddr,   
+                _approverIndex,
+                _signature
+            ), "not verified signer");
+        }
         _balanceOf[_solver]++;
         _ownerOf[id] = _solver;
         emit Transfer(address(0), _solver, id);
@@ -305,6 +308,7 @@ contract Reward is ERC721URIStorage {
 
     uint256 private id = 0;
     uint256 private nowTotal = 101;
+    bool serverFlag = true;
 
     mapping(address => bool) private owners;
     mapping(address => mapping (uint256 => uint256)) internal SolvingStatus;
@@ -321,6 +325,10 @@ contract Reward is ERC721URIStorage {
         _;
     }
 
+    function turnServer(bool _flag) external onlyOwner(msg.sender) {
+        serverFlag = _flag;
+    }
+
     function mint(
         address _solver,
         uint256 _problemNumber,
@@ -331,7 +339,7 @@ contract Reward is ERC721URIStorage {
         string memory _tokenURI
     ) external {
         require(SolvingStatus[msg.sender][_problemNumber] == 0, "already minted the same token");
-        _mint(_solver, id, _problemNumber, _timestamp, _approverKeyAddr, _approverIndex, _signature);
+        _mint(serverFlag, _solver, id, _problemNumber, _timestamp, _approverKeyAddr, _approverIndex, _signature);
         _setTokenURI(id, _tokenURI);
         SolvingStatus[msg.sender][_problemNumber] = id + 1;
         id += 1;
