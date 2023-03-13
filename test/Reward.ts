@@ -589,7 +589,7 @@ describe("Reward", () => {
       });
   
       it("has a name", async () => {
-        expect(await rewardContract.name()).to.be.equal("DappChefRewardNFTtest#1");
+        expect(await rewardContract.name()).to.be.equal("DappChefRewardNFT");
       });
   
       it("has a symbol", async () => {
@@ -669,8 +669,8 @@ describe("Reward", () => {
   
     describe("check correct deployer, name, symbol and totalNum", () => {
       // Returns name of Reward Contract NFT
-      it("name(): should return `DappChefRewardNFTtest#1`", async () => {
-        expect( await rewardContract.name()).to.equal("DappChefRewardNFTtest#1");
+      it("name(): should return `DappChefRewardNFT`", async () => {
+        expect(await rewardContract.name()).to.equal("DappChefRewardNFT");
       });
   
       // Returns symbol of Reward Contract NFT
